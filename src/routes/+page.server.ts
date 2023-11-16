@@ -7,7 +7,7 @@ export const load = (async () => {
 	const data = await movies.find({})
     .toArray();
 	return {
-		status: 200,
+		status: data.length ? 200 : 404,
 		movies: data,
 		form: superValidate(formSchema)
 	};

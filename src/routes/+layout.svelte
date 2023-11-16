@@ -5,9 +5,12 @@
 	import { Sun, Moon } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 
-	import { toggleMode } from 'mode-watcher';
+	import { setMode, toggleMode } from 'mode-watcher';
 	import MovieForm from './movie/MovieForm.svelte';
+	import { onMount } from 'svelte';
 
+    onMount(() => setMode('system'));
+	setMode('system')
 	export let data: PageData;
 </script>
 
