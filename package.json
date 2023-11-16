@@ -21,12 +21,13 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-svelte": "^2.30.0",
-		"postcss": "^8.4.24",
+		"postcss": "^8.4.31",
 		"postcss-load-config": "^4.0.1",
 		"prettier": "^3.0.0",
 		"prettier-plugin-svelte": "^3.0.0",
-		"svelte": "^5.0.0-next.1",
-		"svelte-check": "^3.6.0",
+		"svelte": "^4.2.2",
+		"svelte-check": "^3.5.2",
+		"svelte-headless-table": "^0.17.7",
 		"tailwindcss": "^3.3.2",
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
@@ -35,10 +36,15 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"bits-ui": "^0.9.7",
 		"clsx": "^2.0.0",
+		"formsnap": "^0.4.1",
 		"lucide-svelte": "^0.292.0",
+		"mode-watcher": "^0.1.1",
 		"mongodb": "^6.2.0",
+		"sveltekit-superforms": "^1.10.2",
 		"tailwind-merge": "^2.0.0",
-		"tailwind-variants": "^0.1.18"
+		"tailwind-variants": "^0.1.18",
+		"zod": "^3.22.4"
 	}
 }

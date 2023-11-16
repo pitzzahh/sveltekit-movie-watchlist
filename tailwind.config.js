@@ -4,7 +4,7 @@ import { fontFamily } from "tailwindcss/defaultTheme";
 const config = {
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
-  safelist: ["dark"],
+	safelist: ["dark"],
 	theme: {
 		container: {
 			center: true,
@@ -17,7 +17,7 @@ const config = {
 			colors: {
 				border: "hsl(var(--border) / <alpha-value>)",
 				input: "hsl(var(--input) / <alpha-value>)",
-				ring: "hsl(var(--ring) / <alpha-value>)",
+				ring: "hsl(var(--ring))",
 				background: "hsl(var(--background) / <alpha-value>)",
 				foreground: "hsl(var(--foreground) / <alpha-value>)",
 				primary: {
@@ -26,11 +26,13 @@ const config = {
 				},
 				secondary: {
 					DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
-					foreground: "hsl(var(--secondary-foreground) / <alpha-value>)"
+					foreground:
+						"hsl(var(--secondary-foreground) / <alpha-value>)"
 				},
 				destructive: {
 					DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
-					foreground: "hsl(var(--destructive-foreground) / <alpha-value>)"
+					foreground:
+						"hsl(var(--destructive-foreground) / <alpha-value>)"
 				},
 				muted: {
 					DEFAULT: "hsl(var(--muted) / <alpha-value>)",
@@ -55,10 +57,10 @@ const config = {
 				sm: "calc(var(--radius) - 4px)"
 			},
 			fontFamily: {
-				sans: [...fontFamily.sans]
+				sans: ["Inter", ...fontFamily.sans]
 			}
 		}
-	},
+	}
 };
 
 export default config;
