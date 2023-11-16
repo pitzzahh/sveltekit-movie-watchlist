@@ -10,23 +10,25 @@
 </script>
 
 {#if data.status === 200}
-	{#each movies as movie (movie.id)}
-		<Card.Root class="w-[350px]">
-			<Card.Header>
-				<Card.Title>{movie.title}</Card.Title>
-				<Card.Description>{movie.genre.join(', ')}</Card.Description>
-			</Card.Header>
-			<Card.Content>
-				<p>Release Year: {movie.releaseYear}</p>
-				<p>Rating: {movie.rating}</p>
-				<p>Watched: {movie.watched ? 'Yes' : 'No'}</p>
-			</Card.Content>
-			<Card.Footer class="flex justify-between">
-				<Button variant="outline">Cancel</Button>
-				<Button>Deploy</Button>
-			</Card.Footer>
-		</Card.Root>
-	{/each}
+	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-10">
+		{#each movies as movie (movie.id)}
+			<Card.Root class="w-[350px]">
+				<Card.Header>
+					<Card.Title>{movie.title}</Card.Title>
+					<Card.Description>{movie.genre}</Card.Description>
+				</Card.Header>
+				<Card.Content>
+					<p>Release Year: {movie.year}</p>
+					<p>Rating: {movie.rating}</p>
+					<p>Watched: {movie.watched ? 'Yes' : 'No'}</p>
+				</Card.Content>
+				<Card.Footer class="flex justify-between">
+					<Button variant="outline">Cancel</Button>
+					<Button>Deploy</Button>
+				</Card.Footer>
+			</Card.Root>
+		{/each}
+	</div>
 {:else}
 	<Alert.Root>
 		<Film class="h-4 w-4" />

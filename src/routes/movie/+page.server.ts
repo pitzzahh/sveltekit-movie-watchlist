@@ -9,7 +9,9 @@ export const load: PageServerLoad = () => {
 };
 export const actions: Actions = {
 	default: async (event) => {
+        console.log('submitted form');
 		const form = await superValidate(event, formSchema);
+        console.log(form.data);
 		if (!form.valid) {
 			return fail(400, {
 				form

@@ -4,7 +4,6 @@
 	import { onMount } from 'svelte';
 	import { formSchema, type FormSchema } from './schema';
 	import type { SuperValidated } from 'sveltekit-superforms';
-	import Button from '$lib/components/ui/button/button.svelte';
 
 	export let form: SuperValidated<FormSchema>;
 
@@ -19,7 +18,12 @@
 	});
 </script>
 
-<Form.Root method="POST" {form} schema={formSchema} let:config>
+<Form.Root
+	{form}
+	schema={formSchema}
+	let:config
+	method="POST"
+>
 	{#each movieFormInfo as movieInfo}
 		<Form.Field {config} name={movieInfo.name}>
 			<Form.Item>
@@ -36,7 +40,6 @@
 				{:else}
 					<Form.Input />
 				{/if}
-				<Form.Description>{movieInfo.description}</Form.Description>
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
