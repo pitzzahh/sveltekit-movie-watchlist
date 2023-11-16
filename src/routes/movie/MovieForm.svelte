@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { movieFormInfo, suggestGenre } from '$lib';
 	import * as Form from '$lib/components/ui/form';
-	import * as Select from '$lib/components/ui/select';
 	import { onMount } from 'svelte';
 	import { formSchema, type FormSchema } from './schema';
 	import type { SuperValidated } from 'sveltekit-superforms';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	export let form: SuperValidated<FormSchema>;
 
@@ -15,21 +15,31 @@
 
 	onMount(async () => {
 		const suggestedGenre = await suggestGenre('hor');
-		console.log(suggestedGenre)
+		console.log(suggestedGenre);
 	});
 </script>
 
-<Form.Root method="POST" {form} schema={formSchema} let:config >
+<Form.Root method="POST" {form} schema={formSchema} let:config>
 	{#each movieFormInfo as movieInfo}
-		<Form.Field {config} name={movieInfo.name} >
-			<Form.Item >
+		<Form.Field {config} name={movieInfo.name}>
+			<Form.Item>
 				<Form.Label>{movieInfo.label}</Form.Label>
-				<Form.Input />
+				{#if movieInfo.name === 'rating'}
+					<Form.Select>
+						<Form.SelectTrigger placeholder="Select the rating of the movie, or rate it yourself" />
+						<Form.SelectContent class="overflow-y-auto">
+							{#each Array.from({ length: 10 }, (_, index) => index + 1) as option (option)}
+								<Form.SelectItem value={option.toString()}>{option}</Form.SelectItem>
+							{/each}
+						</Form.SelectContent>
+					</Form.Select>
+				{:else}
+					<Form.Input />
+				{/if}
 				<Form.Description>{movieInfo.description}</Form.Description>
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
 	{/each}
-
 	<Form.Button>Submit</Form.Button>
 </Form.Root>

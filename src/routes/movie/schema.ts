@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { suggestGenre } from '$lib'
+import { suggestGenre } from '$lib';
 import { z } from 'zod';
 
 export const formSchema = z.object({
@@ -11,18 +11,18 @@ export const formSchema = z.object({
 		.string()
 		.min(4, { message: 'Genre must be at least 4 characters long' })
 		.max(10, { message: 'Genre cannot exceed 10 characters' }),
-		// .refine(
-		// 	async (value) => {
-		// 	  const suggestedGenre = await suggestGenre(value);
-	  
-		// 	  if (suggestedGenre) {
-		// 		throw error(400, `Do you mean ${suggestedGenre}?`);
-		// 	  }
-	  
-		// 	  return true;
-		// 	},
-		// 	{ message: 'Invalid genre' }
-		//   ),
+	// .refine(
+	// 	async (value) => {
+	// 	  const suggestedGenre = await suggestGenre(value);
+
+	// 	  if (suggestedGenre) {
+	// 		throw error(400, `Do you mean ${suggestedGenre}?`);
+	// 	  }
+
+	// 	  return true;
+	// 	},
+	// 	{ message: 'Invalid genre' }
+	//   ),
 	year: z
 		.string()
 		.min(4, { message: 'Year must be at least 4 characters long' })
@@ -34,7 +34,11 @@ export const formSchema = z.object({
 				return Number(value) >= 1900 && Number(value) <= new Date().getFullYear();
 			},
 			{ message: 'Year must be between 1900 and current year' }
-		)
+		),
+	rating: z
+		.string()
+		.min(1, { message: 'Rating must be at least 1 characters long' })
+		.max(10, { message: 'Rating cannot exceed 10 characters' })
 });
 
 export type FormSchema = typeof formSchema;
