@@ -5,11 +5,12 @@
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import { Label } from '$lib/components/ui/label';
 	import { goto } from '$app/navigation';
+	import { scale } from 'svelte/transition';
 
 	export let form: SuperValidated<FormSchema>;
 </script>
 
-<div class="mx-5">
+<div class="mx-5" in:scale>
 	<div class="flex flex-col items-center md:items-left mb-5">
 		<Label class="text-2xl font-bold">Add Movie</Label>
 		<Label class="text-xl font-semi-bold">Add a movie to your watch list.</Label>
