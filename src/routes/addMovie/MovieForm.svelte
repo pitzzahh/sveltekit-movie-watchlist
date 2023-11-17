@@ -6,8 +6,10 @@
 	import { Label } from '$lib/components/ui/label';
 	import { goto } from '$app/navigation';
 	import { scale } from 'svelte/transition';
+	import { toast } from 'svelte-sonner';
 
 	export let form: SuperValidated<FormSchema>;
+
 </script>
 
 <div class="mx-5" in:scale>
@@ -16,7 +18,7 @@
 		<Label class="text-xl font-semi-bold">Add a movie to your watch list.</Label>
 	</div>
 
-	<Form.Root {form} schema={formSchema} let:config method="POST">
+	<Form.Root method="POST" {form} schema={formSchema} let:config>
 		{#each movieFormInfo as movieInfo}
 			<Form.Field {config} name={movieInfo.name}>
 				<Form.Item>
@@ -37,14 +39,6 @@
 				</Form.Item>
 			</Form.Field>
 		{/each}
-		<Form.Button
-			class="mt-2"
-			formaction="?/createMovie"
-			on:click={() => {
-				if (form && form.valid) {
-					goto('/');
-				}
-			}}>Add to watch list</Form.Button
-		>
+		<Form.Button class="mt-2" formaction="?/createMovie">Add to watch list</Form.Button>
 	</Form.Root>
 </div>

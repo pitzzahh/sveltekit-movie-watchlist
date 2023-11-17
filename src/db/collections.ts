@@ -14,7 +14,7 @@ export const addMovie = (movieData: Movie): Promise<string> => {
 			const result = await movies.insertOne(movieData);
 
 			if (result.acknowledged) {
-				resolve(result.insertedId.toString());
+				resolve(movieData.title);
 			} else {
 				reject(`Error adding movie: ${result}`);
 			}

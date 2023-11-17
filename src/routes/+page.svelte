@@ -5,13 +5,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Film } from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { store } from '$lib';
-	import type { FormSchema } from './addMovie/schema';
 	import { fly, scale } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
-	export let form: SuperValidated<FormSchema>;
 	export let data: PageData;
 
 	// server side rendered, auto fetch

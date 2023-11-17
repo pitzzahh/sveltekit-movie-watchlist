@@ -29,7 +29,7 @@ export const movieFormInfo = [
 		description: 'The title of the movie'
 	},
 	{
-		name: 'genre',
+		name: 'genres',
 		label: 'Genres',
 		description: 'The genres of the movie separated by spaces'
 	},
