@@ -9,6 +9,7 @@
 	import { onNavigate } from '$app/navigation';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { ModeWatcher } from 'mode-watcher';
+	import { Toaster } from 'svelte-sonner';
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -79,5 +80,7 @@
 </nav>
 
 <ModeWatcher />
+
+<Toaster richColors position="bottom-right" />
 
 <slot />
