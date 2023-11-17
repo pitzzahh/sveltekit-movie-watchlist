@@ -2,13 +2,13 @@
 	import '../app.postcss';
 	import { Button } from '$lib/components/ui/button';
 	import { Sun, Moon } from 'lucide-svelte';
-	import { setMode, resetMode } from 'mode-watcher';
+	import { toggleMode } from 'mode-watcher';
 	import { onMount } from 'svelte';
-	import { Label } from '$lib/components/ui/label';
 	import { store } from '$lib';
 	import { page } from '$app/stores';
 	import { onNavigate } from '$app/navigation';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { ModeWatcher } from 'mode-watcher';
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -30,24 +30,22 @@
 		}
 
 		document.addEventListener('keydown', handleKeydown);
+
 		return () => {
 			document.removeEventListener('keydown', handleKeydown);
 		};
 	});
 
 	let buttonText = 'Add Movie';
-
+	
 	$: {
 		buttonText = $page.route.id === '/addMovie' ? 'Home' : 'Add Movie';
 	}
-
 </script>
 
-<nav class="flex justify-between items-center p-4">
+<nav class="flex justify-between items-center p-4 sticky top-0">
 	<div class="flex items-center">
-		<a href="/">
-			<Label class="font-bold text-2xl md:text-3xl cursor-pointer">Movie Watchlist</Label></a
-		>
+		<a href="/" class="font-bold text-2xl md:text-3xl cursor-pointer">Movie Watchlist</a>
 	</div>
 
 	<div class="flex items-center space-x-4">
@@ -57,31 +55,19 @@
 			</Button>
 		</a>
 
-		<DropdownMenu.Root positioning={{ placement: 'bottom-end' }}>
-			<DropdownMenu.Trigger asChild let:builder>
-				<Button builders={[builder]} variant="outline" size="icon">
-					<Sun
-						class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-					/>
-					<Moon
-						class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-					/>
-					<span class="sr-only">Toggle theme</span>
-				</Button>
-			</DropdownMenu.Trigger>
-			<DropdownMenu.Content>
-				<DropdownMenu.Item on:click={() => {
-					console.log('setting to light mode')
-					setMode('light')
-				}}>Light</DropdownMenu.Item>
-				<DropdownMenu.Item on:click={() => {
-					console.log('setting to dark mode')
-					setMode('dark')
-				}}>Dark</DropdownMenu.Item>
-				<DropdownMenu.Item on:click={() => resetMode()}>System</DropdownMenu.Item>
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
+
+		<Button on:click={toggleMode} variant="outline" size="icon">
+			<Sun
+			  class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+			/>
+			<Moon
+			  class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+			/>
+			<span class="sr-only">Toggle theme</span>
+		  </Button>
 	</div>
 </nav>
+
+<ModeWatcher />
 
 <slot />
