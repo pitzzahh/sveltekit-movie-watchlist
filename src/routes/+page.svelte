@@ -1,21 +1,39 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
+	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Film } from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { store } from '$lib';
+	import type { FormSchema } from './movie/schema';
+
+	export let form: SuperValidated<FormSchema>;
 	export let data: PageData;
 
+	// server side rendered, auto fetch
 	$: ({ movies } = data);
+
+	$: {
+		if (form && form.valid) {
+			store.update((state) => ({
+				...state,
+				openForm: !form.valid
+			}));
+		}
+	}
 </script>
 
 {#if data.status === 200}
-	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-10">
-		{#each movies as movie (movie.id)}
-			<Card.Root class="w-[350px]">
+	<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
+		{#each movies as movie}
+			<Card.Root class="w-full">
+				<input class="sr-only" name={movie.id} />
 				<Card.Header>
 					<Card.Title>{movie.title}</Card.Title>
-					<Card.Description>{movie.genre}</Card.Description>
+					<Card.Description><Badge>{movie.genre}</Badge></Card.Description>
 				</Card.Header>
 				<Card.Content>
 					<p>Release Year: {movie.year}</p>
@@ -23,8 +41,8 @@
 					<p>Watched: {movie.watched ? 'Yes' : 'No'}</p>
 				</Card.Content>
 				<Card.Footer class="flex justify-between">
-					<Button variant="outline">Cancel</Button>
-					<Button>Deploy</Button>
+					<Button variant="destructive">Delete</Button>
+					<Button>Modify</Button>
 				</Card.Footer>
 			</Card.Root>
 		{/each}

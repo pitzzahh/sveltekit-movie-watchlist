@@ -1,5 +1,5 @@
-import { error } from '@sveltejs/kit';
 import { suggestGenre } from '$lib';
+import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 
 export const formSchema = z.object({
@@ -9,8 +9,8 @@ export const formSchema = z.object({
 		.max(50, { message: 'Title cannot exceed 50 characters' }),
 	genre: z
 		.string()
-		.min(4, { message: 'Genre must be at least 4 characters long' })
-		.max(10, { message: 'Genre cannot exceed 10 characters' }),
+		.min(3, { message: 'Genre must be at least 3 characters long' })
+		.max(15, { message: 'Genre cannot exceed 15 characters' }),
 	// .refine(
 	// 	async (value) => {
 	// 	  const suggestedGenre = await suggestGenre(value);
@@ -38,7 +38,8 @@ export const formSchema = z.object({
 	rating: z
 		.string()
 		.min(1, { message: 'Rating must be at least 1 characters long' })
-		.max(10, { message: 'Rating cannot exceed 10 characters' })
+		.max(10, { message: 'Rating cannot exceed 10 characters' }),
+	movieId: z.string()
 });
 
 export type FormSchema = typeof formSchema;

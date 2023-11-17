@@ -1,3 +1,5 @@
+import { writable } from "svelte/store";
+
 export async function suggestGenre(value: string): Promise<string | null> {
 	const lowercasedValue = value.toLowerCase();
 
@@ -43,3 +45,7 @@ export const movieFormInfo = [
     },
     
 ];
+
+export const store = writable({
+	openForm: false
+});
