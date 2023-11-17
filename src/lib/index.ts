@@ -30,8 +30,8 @@ export const movieFormInfo = [
 	},
 	{
 		name: 'genre',
-		label: 'Genre',
-		description: 'The genre of the movie'
+		label: 'Genres',
+		description: 'The genres of the movie separated by spaces'
 	},
 	{
 		name: 'year',
