@@ -23,10 +23,10 @@
 		</Alert.Root>
 	{:else}
 		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
-			{#each moviesData as movie}
+			{#each moviesData as movie, i}
 				<form
 					transition:scale={{
-						delay: 250,
+						delay: 450 * i,
 						duration: 300,
 						opacity: 0.5,
 						easing: quintOut
