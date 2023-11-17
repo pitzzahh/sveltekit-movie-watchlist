@@ -1,4 +1,4 @@
-import { movies } from '$db/movies';
+import { movies } from '$db/collections';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
