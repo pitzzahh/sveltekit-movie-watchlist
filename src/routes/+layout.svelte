@@ -52,7 +52,7 @@
 	</div>
 
 	<div class="flex items-center space-x-4">
-		<a href={buttonText == 'Home' ? '/' : '/addMovie'}>
+		<a href={buttonText == 'Home' ? '/' : '/movie'}>
 			<Button variant="outline">
 				{buttonText}
 			</Button>
