@@ -1,23 +1,23 @@
 import type { PageServerLoad, Actions } from './$types';
 import { movies } from '$db/collections';
+import { startMongo } from '$db/mongo';
+import { error } from '@sveltejs/kit';
+export const prerender = true;
 
 export const load = (async () => {
-	const data = (await movies.find({}).toArray()).map((movie) => ({
-		...movie,
-		_id: movie._id.toString()
-	}));
+	try {
+		await startMongo();
 
-	return {
-		status: data.length ? 200 : 404,
-		movies: data
-	};
-}) satisfies PageServerLoad;
+		const data = (await movies.find({}).toArray()).map((movie) => ({
+			...movie,
+			_id: movie._id.toString()
+		}));
 
-export const actions: Actions = {
-	deleteMovie: async (event) => {
-		console.log('deleting movie');
-		const data = await event.request.formData();
-		const id = data.get('id');
-		console.log(id);
+		return {
+			status: data.length ? 200 : 404,
+			movies: data
+		};
+	} catch (err: any) {
+		throw error(500, `${err}`)
 	}
-};
+}) satisfies PageServerLoad;
