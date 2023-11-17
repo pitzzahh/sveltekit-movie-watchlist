@@ -40,7 +40,7 @@
 	let buttonText = 'Add Movie';
 
 	$: {
-		buttonText = $page.route.id === '/addMovie' ? 'Home' : 'Add Movie';
+		buttonText = $page.route.id === '/movie' ? 'Home' : 'Add Movie';
 	}
 </script>
 
