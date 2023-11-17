@@ -1,15 +1,25 @@
 <script lang="ts">
 	import '../app.postcss';
-	import type { PageData, ActionData } from './$types';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 	import { Sun, Moon } from 'lucide-svelte';
-	import * as Dialog from '$lib/components/ui/dialog';
-
-	import { setMode, toggleMode } from 'mode-watcher';
-	import MovieForm from './MovieForm.svelte';
+	import { setMode, resetMode } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { Label } from '$lib/components/ui/label';
 	import { store } from '$lib';
+	import { page } from '$app/stores';
+	import { onNavigate } from '$app/navigation';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 
 	onMount(() => {
 		function handleKeydown(e: KeyboardEvent) {
@@ -24,36 +34,54 @@
 			document.removeEventListener('keydown', handleKeydown);
 		};
 	});
-	export let data: PageData;
+
+	let buttonText = 'Add Movie';
+
+	$: {
+		buttonText = $page.route.id === '/addMovie' ? 'Home' : 'Add Movie';
+	}
+
 </script>
 
 <nav class="flex justify-between items-center p-4">
-	<Dialog.Root bind:open={$store.openForm}>
-		<Dialog.Trigger
-			on:click={() => ($store.openForm = true)}
-			class={buttonVariants({ variant: 'outline' })}>Add Movie</Dialog.Trigger
+	<div class="flex items-center">
+		<a href="/">
+			<Label class="font-bold text-2xl md:text-3xl cursor-pointer">Movie Watchlist</Label></a
 		>
-		<Dialog.Content class="sm:max-w-[425px]">
-			<Dialog.Header>
-				<Dialog.Title>Add Movie</Dialog.Title>
-				<Dialog.Description>Add a movie to your watch list.</Dialog.Description>
-			</Dialog.Header>
-			<div class="grid gap-4 py-4">
-				<MovieForm form={data.form}/>
-			</div>
-		</Dialog.Content>
-	</Dialog.Root>
+	</div>
 
-	<Label class="font-bold text-3xl">Movie Watchlist</Label>
+	<div class="flex items-center space-x-4">
+		<a href={buttonText == 'Home' ? '/' : '/addMovie'}>
+			<Button variant="outline">
+				{buttonText}
+			</Button>
+		</a>
 
-	<Button on:click={toggleMode} variant="outline" size="icon">
-		<Sun
-			class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-		/>
-		<Moon
-			class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-		/>
-		<span class="sr-only">Toggle theme</span>
-	</Button>
+		<DropdownMenu.Root positioning={{ placement: 'bottom-end' }}>
+			<DropdownMenu.Trigger asChild let:builder>
+				<Button builders={[builder]} variant="outline" size="icon">
+					<Sun
+						class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+					/>
+					<Moon
+						class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+					/>
+					<span class="sr-only">Toggle theme</span>
+				</Button>
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content>
+				<DropdownMenu.Item on:click={() => {
+					console.log('setting to light mode')
+					setMode('light')
+				}}>Light</DropdownMenu.Item>
+				<DropdownMenu.Item on:click={() => {
+					console.log('setting to dark mode')
+					setMode('dark')
+				}}>Dark</DropdownMenu.Item>
+				<DropdownMenu.Item on:click={() => resetMode()}>System</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+	</div>
 </nav>
+
 <slot />
