@@ -5,16 +5,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Film } from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
-	import { fly, scale } from 'svelte/transition';
+	import { scale, fade } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
 	export let data: PageData;
 
 	// server side rendered, auto fetch
-	$: ({ movies } = data);
+	$: ({ moviesData } = data);
 </script>
 
-<div in:scale>
+<div in:fade>
 	{#if data.status === 404}
 		<Alert.Root>
 			<Film class="h-4 w-4" />
@@ -23,13 +23,11 @@
 		</Alert.Root>
 	{:else}
 		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
-			{#each movies as movie}
+			{#each moviesData as movie}
 				<form
-					transition:fly={{
+					transition:scale={{
 						delay: 250,
 						duration: 300,
-						x: 100,
-						y: 500,
 						opacity: 0.5,
 						easing: quintOut
 					}}

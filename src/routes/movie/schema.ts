@@ -7,7 +7,7 @@ export const formSchema = z.object({
 		.string()
 		.min(2, { message: 'Title must be at least 2 characters long' })
 		.max(50, { message: 'Title cannot exceed 50 characters' }),
-	genre: z
+	genres: z
 		.string()
 		.min(3, { message: 'Genre must be at least 3 characters long' })
 		.max(15, { message: 'Genre cannot exceed 15 characters' }),

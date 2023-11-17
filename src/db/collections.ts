@@ -1,4 +1,5 @@
 import db from '$db/mongo';
+import type { InsertOneResult } from 'mongodb';
 
 export const movies = db.collection<Movie>('movies');
 export const genres = db.collection<Genre>('genres');
@@ -11,10 +12,10 @@ export const genres = db.collection<Genre>('genres');
 export const addMovie = (movieData: Movie): Promise<string> => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const result = await movies.insertOne(movieData);
+			const result: InsertOneResult<Movie> = await movies.insertOne(movieData);
 
 			if (result.acknowledged) {
-				resolve(movieData.title);
+				resolve(JSON.stringify(result));
 			} else {
 				reject(`Error adding movie: ${result}`);
 			}
@@ -22,4 +23,8 @@ export const addMovie = (movieData: Movie): Promise<string> => {
 			reject(`Error adding movie: ${error}`);
 		}
 	});
+};
+
+export const fetchDataFromMongoDB = async (collection: any) => {
+    return await collection.find({}).toArray();
 };

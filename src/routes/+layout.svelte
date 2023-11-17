@@ -8,7 +8,7 @@
 	import { page } from '$app/stores';
 	import { onNavigate } from '$app/navigation';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { ModeWatcher } from 'mode-watcher';
+	import { ModeWatcher, userPrefersMode } from 'mode-watcher';
 	import { Toaster } from 'svelte-sonner';
 
 	onNavigate((navigation) => {
@@ -81,6 +81,6 @@
 
 <ModeWatcher />
 
-<Toaster richColors position="bottom-right" />
+<Toaster richColors position="bottom-right" theme={$userPrefersMode} />
 
 <slot />

@@ -4,14 +4,14 @@ import { error } from '@sveltejs/kit';
 
 export const load = (async () => {
 	try {
-		const data = (await movies.find({}).toArray()).map((movie) => ({
+		const data: Movie[] = (await movies.find({}).toArray()).map((movie) => ({
 			...movie,
 			_id: movie._id.toString()
 		}));
 
 		return {
 			status: data.length ? 200 : 404,
-			movies: data
+			moviesData: data
 		};
 	} catch (err: any) {
 		throw error(500, `${err}`)
