@@ -53,7 +53,7 @@ export const addGenres = (genre: Genre[]): Promise<string[]> => {
 
 			const result: InsertManyResult<Genre> = await genres.insertMany(genre);
 			
-			if (result.insertedCount === genre.length && result.acknowledged) {
+			if (result.acknowledged) {
 				resolve(genreIds);
 			} else {
 				reject(`Error adding movie: ${result}`);
