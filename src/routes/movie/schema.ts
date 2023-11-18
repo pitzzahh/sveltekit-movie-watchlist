@@ -9,8 +9,7 @@ export const formSchema = z.object({
 		.max(50, { message: 'Title cannot exceed 50 characters' }),
 	genres: z
 		.string()
-		.min(3, { message: 'Genre must be at least 3 characters long' })
-		.max(15, { message: 'Genre cannot exceed 15 characters' }),
+		.min(3, { message: 'Genre must be at least 3 characters long' }),
 	// .refine(
 	// 	async (value) => {
 	// 	  const suggestedGenre = await suggestGenre(value);
