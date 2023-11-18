@@ -1,7 +1,7 @@
 type Movie = {
     id: string | null;
     title: string;
-    genres: Genre[];
+    genres: string[];
     year: number;
     rating: number;
     watched: boolean | false;
