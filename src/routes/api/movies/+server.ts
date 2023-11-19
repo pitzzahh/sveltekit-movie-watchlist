@@ -1,13 +1,9 @@
-import { movies } from '$db/collections';
+import { fetchDataFromMongoDB, movies } from '$db/collections';
+import { mapFetchedMovieToType } from '$lib';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-    const data = (await movies.find({}).toArray()).map(movie => ({
-		...movie,
-		_id: movie._id.toString()
-	  }));
-	
-	return new Response(JSON.stringify(data), {
+	return new Response(JSON.stringify((await fetchDataFromMongoDB(movies)).map((data) => mapFetchedMovieToType(data))), {
 		headers: {
 			'Content-Type': 'application/json'
 		}

@@ -1,62 +1,66 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import MovieCard from '../lib/components/MovieCard.svelte';
+	import type { ActionData, PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
 	import { Film } from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
-	import { scale, fade } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
+	import { fade } from 'svelte/transition';
+	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
 	export let data: PageData;
+	export let form: ActionData;
 
 	// server side rendered, auto fetch
-	$: ({ moviesData } = data);
+	$: ({ movies } = data);
+
+	$: {
+		if (form) {
+			toast.success('');
+			goto('/');
+		}
+
+		if (form) {
+			toast.error(`Failed to delete movie ${form?.errorMessage}`);
+		}
+	}
 </script>
 
 <div in:fade>
-	{#if data.status === 404}
-		<Alert.Root>
-			<Film class="h-4 w-4" />
-			<Alert.Title>No Movies in your watch list</Alert.Title>
-			<Alert.Description>You can add movies by clicking Add Movie Button above</Alert.Description>
-		</Alert.Root>
-	{:else}
-		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
-			{#each moviesData as movie, i}
-				<form
-					transition:scale={{
-						delay: 450 * i,
-						duration: 300,
-						opacity: 0.5,
-						easing: quintOut
-					}}
-					method="post"
-					class="w-full"
-					action="?/deleteMovie"
-				>
-					<Card.Root class="w-full">
-						<input class="sr-only" name={movie.id} />
-						<Card.Header>
-							<Card.Title class="font-bold text-xl">{movie.title}</Card.Title>
-							<div class="flex gap-1">
-								{#each movie.genres as genre}
-									<Card.Description><Badge>{genre.name}</Badge></Card.Description>
-								{/each}
-							</div>
-						</Card.Header>
-						<Card.Content>
-							<p class="font-bold">Release Year: <span>{movie.year}</span></p>
-							<p class="font-bold">Rating: <span>{movie.rating}</span></p>
-							<p class="font-bold">Watched: <span>{movie.watched ? 'Yes' : 'No'}</span></p>
-						</Card.Content>
-						<Card.Footer class="flex justify-between">
-							<Button variant="destructive" formaction="?/deleteMovie">Delete</Button>
-							<Button>Modify</Button>
-						</Card.Footer>
-					</Card.Root>
-				</form>
-			{/each}
-		</div>
-	{/if}
+	{#await movies}
+		<Card.Root class="w-full">
+			<Card.Header>
+				<Skeleton class="h-8 w-2/3 mb-2 bg-gray-300 rounded" />
+				<Skeleton class="h-4 w-1/3 bg-gray-300 rounded" />
+			</Card.Header>
+			<Card.Content>
+				<Skeleton class="h-4 w-1/4 bg-gray-300 rounded mb-1" />
+				<Skeleton class="h-4 w-1/5 bg-gray-300 rounded mb-1" />
+				<Skeleton class="h-4 w-1/4 bg-gray-300 rounded mb-1" />
+			</Card.Content>
+			<Card.Footer class="flex justify-between">
+				<Skeleton class="h-10 w-16 bg-gray-300 rounded" />
+				<Skeleton class="h-10 w-16 bg-gray-300 rounded" />
+			</Card.Footer>
+		</Card.Root>
+	{:then movies}
+		{#if movies.length == 0}
+			<div class="m-5">
+				<Alert.Root>
+					<Film class="h-4 w-4" />
+					<Alert.Title>No Movies in your watch list</Alert.Title>
+					<Alert.Description
+						>You can add movies by clicking Add Movie Button above</Alert.Description
+					>
+				</Alert.Root>
+			</div>
+		{:else}
+			<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
+				{#each movies as movie}
+					<MovieCard form={data.form} {movie} />
+				{/each}
+			</div>
+		{/if}
+	{/await}
 </div>

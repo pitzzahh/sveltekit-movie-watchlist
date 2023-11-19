@@ -1,14 +1,13 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { Button } from '$lib/components/ui/button';
-	import { Sun, Moon } from 'lucide-svelte';
-	import { setMode, resetMode } from 'mode-watcher';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Sun, Moon, Clapperboard } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { store } from '$lib';
 	import { page } from '$app/stores';
-	import { onNavigate } from '$app/navigation';
+	import { goto, onNavigate } from '$app/navigation';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { ModeWatcher, userPrefersMode } from 'mode-watcher';
+	import { setMode, resetMode, ModeWatcher, userPrefersMode } from 'mode-watcher';
 	import { Toaster } from 'svelte-sonner';
 
 	onNavigate((navigation) => {
@@ -26,7 +25,7 @@
 		function handleKeydown(e: KeyboardEvent) {
 			if (e.key === 'j' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
-				$store.openForm = !$store.openForm;
+				goto(`${$page.route.id === '/' ? '/movie' : '/'}`)
 			}
 		}
 
@@ -39,23 +38,20 @@
 
 	let buttonText = 'Add Movie';
 
-	$: {
-		buttonText = $page.route.id === '/movie' ? 'Home' : 'Add Movie';
-	}
+	$: buttonText = $page.route.id != '/' ? 'Home' : 'Add Movie';
 </script>
 
 <nav
 	class="flex justify-between items-center p-4 sticky top-0 z-10 backdrop-filter backdrop-blur-lg bg-opacity-20"
 >
-	<div class="flex items-center">
-		<a href="/" class="font-bold text-2xl md:text-3xl cursor-pointer">Movie Watchlist</a>
+	<div class="flex items-center gap-1">
+		<Clapperboard size={32} />
+		<a href="/" class="font-bold text-3xl md:text-3xl cursor-pointer">Movie Watchlist</a>
 	</div>
 
 	<div class="flex items-center space-x-4">
-		<a href={buttonText == 'Home' ? '/' : '/movie'}>
-			<Button variant="outline">
-				{buttonText}
-			</Button>
+		<a href={buttonText == 'Home' ? '/' : '/movie'} class={buttonVariants({ variant: 'outline' })}>
+			{buttonText} <span class="text-slate-600 ml-2">⌘J</span>
 		</a>
 
 		<DropdownMenu.Root positioning={{ placement: 'bottom-end' }}>

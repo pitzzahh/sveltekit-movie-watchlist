@@ -1,8 +1,7 @@
-import { suggestGenre } from '$lib';
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 
-export const formSchema = z.object({
+export const updateSchema = z.object({
 	title: z
 		.string()
 		.min(2, { message: 'Title must be at least 2 characters long' })
@@ -41,4 +40,4 @@ export const formSchema = z.object({
 	movieId: z.string()
 });
 
-export type FormSchema = typeof formSchema;
+export type FormSchema = typeof updateSchema;

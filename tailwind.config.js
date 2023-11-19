@@ -61,6 +61,18 @@ const config = {
 		}
 	},
 	plugins: [
+		plugin(function ({ addUtilities }) {
+			addUtilities({
+				'.scrollbar-hide': {
+					'-ms-overflow-style': 'none',
+					'scrollbar-width': 'none',
+					'&::-webkit-scrollbar': {
+						display: 'none'
+					}
+				}
+			}
+			)
+		}, ['responsive']),
 		plugin(function ({ addVariant, e, postcss }) {
 			addVariant('firefox', ({ container, separator }) => {
 				const isFirefoxRule = postcss.atRule({
