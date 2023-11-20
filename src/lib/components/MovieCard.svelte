@@ -4,19 +4,13 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
-	import { deleteSchema, type FormSchema } from '../../routes/schema';
-	import type { SuperValidated } from 'sveltekit-superforms';
+	import { enhance } from '$app/forms';
 	export let movie: Movie;
-	export let form: SuperValidated<FormSchema>;
 </script>
 
-<Form.Root schema={deleteSchema} method="POST" {form} let:config class="w-full">
+<form method="POST" class="w-full" use:enhance>
 	<Card.Root class="w-full">
-		<Form.Field {config} name="movieId">
-			<Form.Item>
-				<Form.Input class="sr-only" bind:value={movie._id} />
-			</Form.Item>
-		</Form.Field>
+		<input class="sr-only" bind:value={movie._id} name="movieId" />
 		<Card.Header>
 			<Card.Title class="font-bold text-xl">{movie.title}</Card.Title>
 			<div class="flex overflow-y-auto scrollbar-hide gap-1">
@@ -33,10 +27,11 @@
 		<Card.Footer class="flex justify-between">
 			<Button
 				on:click={() => {
+					console.log(`Movie Id in params: ${movie._id}`);
 					goto(`/movie/${movie._id}`);
 				}}>Modify</Button
 			>
 			<Form.Button variant="destructive" formaction="?/deleteMovie">Delete</Form.Button>
 		</Card.Footer>
 	</Card.Root>
-</Form.Root>
+</form>
