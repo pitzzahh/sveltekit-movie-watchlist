@@ -6,28 +6,29 @@ import { mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
 import { deleteSchema } from './schema';
 import type { DeleteResult, Document } from 'mongodb';
 
-export const load = (async () => {
-	try {
-		const movieDocuments: Document[] = await fetchDataFromMongoDB(movies);
-		const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc))
+// Replaced with client side data fetching
+// export const load = (async () => {
+// 	try {
+// 		const movieDocuments: Document[] = await fetchDataFromMongoDB(movies);
+// 		const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc))
 
-		const finalMovies: Movie[] = await Promise.all(mappedMovies.map(async (m) => {
-			const movieGenres = m.genres ? await Promise.all(m.genres.map(async (genreId: string) => {
-				const genreDoc: Document = await getDocumentById(genres, genreId);
-				const genre: Genre = mapFetchedGenreToType(genreDoc);
-				return genre.name;
-			})) : [];
-			return { ...m, genres: movieGenres, _id: m._id };
-		}));
+// 		const finalMovies: Movie[] = await Promise.all(mappedMovies.map(async (m) => {
+// 			const movieGenres = m.genres ? await Promise.all(m.genres.map(async (genreId: string) => {
+// 				const genreDoc: Document = await getDocumentById(genres, genreId);
+// 				const genre: Genre = mapFetchedGenreToType(genreDoc);
+// 				return genre.name;
+// 			})) : [];
+// 			return { ...m, genres: movieGenres, _id: m._id };
+// 		}));
 
-		return {
-			movies: finalMovies,
-			form: await superValidate(deleteSchema)
-		};
-	} catch (err: any) {
-		throw error(500, `${err}`)
-	}
-}) satisfies PageServerLoad;
+// 		return {
+// 			movies: finalMovies,
+// 			form: await superValidate(deleteSchema)
+// 		};
+// 	} catch (err: any) {
+// 		throw error(500, `${err}`)
+// 	}
+// }) satisfies PageServerLoad;
 
 
 // create a server action named deleteMovie
