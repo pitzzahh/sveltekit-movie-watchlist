@@ -10,7 +10,7 @@
 	export let movie: Movie;
 	export let form: SuperValidated<FormSchema>;
 
-		async function updateMovie(): Promise<any> {
+	async function updateMovie(): Promise<any> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const response: Response = await fetch(`${host}/api/movies`, {
@@ -32,7 +32,6 @@
 			}
 		});
 	}
-
 </script>
 
 <div in:scale>
@@ -82,7 +81,21 @@
 		</Form.Field>
 		<Tooltip.Root>
 			<Tooltip.Trigger asChild let:builder>
-				<Form.Button builders={[builder]} class="mt-2">{`Update movie ${movie.title}`}</Form.Button>
+				<Form.Button
+					builders={[builder]}
+					class="mt-2"
+					on:click={() => {
+						toast.promise(updateMovie, {
+							loading: `Updating ${form.data.title}`,
+							success: (data) => {
+								return data.name;
+							},
+							error: (err) => {
+								return `${err}`;
+							}
+						});
+					}}>{`Update movie ${movie.title}`}</Form.Button
+				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
 				<p>Update movie</p>
