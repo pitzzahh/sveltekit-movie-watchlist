@@ -79,7 +79,7 @@ export const POST: RequestHandler = async ({ request }) => {
 									status: 400,
 									headers: {
 										'Access-Control-Allow-Origin': '*',
-										'Access-Control-Allow-Methods': 'DELETE'
+										'Access-Control-Allow-Methods': 'POST'
 									}
 								});
 							}
@@ -155,7 +155,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 				});
 			}
 
-			return movies.deleteOne({ id: new ObjectId(id) })
+			return movies.deleteOne({ _id: new ObjectId(id) })
 				.then((response: Document) => {
 					const isAcknowledged = response.acknowledged;
 					const deleteCount = response.deletedCount;
