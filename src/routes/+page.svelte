@@ -26,7 +26,7 @@
 
 	const fetchMovies = async (): Promise<Movie[]> => {
 		try {
-			const response: Response = await fetch('http://localhost:5173/api/movies');
+			const response: Response = await fetch('https://sveltekit-movie-watchlist.vercel.app/api/movies');
 			if (response.ok) {
 				console.log(`Movies reponse ${JSON.stringify(response)}`)
 				return await response.json();
