@@ -16,12 +16,11 @@
 	$: ({ movies } = data);
 
 	$: {
-		if (form) {
-			toast.success('');
-			goto('/');
-		}
-
-		if (form) {
+		if (form?.valid) {
+			toast.success(`Movie ${form?.message} deleted sucessfully`);
+		} 
+		console.log(`Is valid undefined: ${form?.valid}`)
+		if(form?.valid != undefined && !form?.valid) {
 			toast.error(`Failed to delete movie ${form?.errorMessage}`);
 		}
 	}
@@ -58,7 +57,7 @@
 		{:else}
 			<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
 				{#each movies as movie}
-					<MovieCard form={data.form} {movie} />
+					<MovieCard {movie} />
 				{/each}
 			</div>
 		{/if}
