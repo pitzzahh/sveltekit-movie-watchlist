@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { host, movieFormInfo } from '$lib';
+	import { host, movieFormInfo, store } from '$lib';
 	import * as Form from '$lib/components/ui/form';
 	import { addSchema } from './schema';
 	import { toast } from 'svelte-sonner';
@@ -7,7 +7,6 @@
 	import { scale } from 'svelte/transition';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { FormSchema } from './schema';
-	import { Button } from '$lib/components/ui/button';
 	export let errMsg: string = '';
 	export let form: SuperValidated<FormSchema>;
 	export let isValid: boolean | undefined = undefined;
@@ -23,27 +22,12 @@
 		}
 	}
 
-	async function addMovie(): Promise<any> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const response: Response = await fetch(`${host}/api/movies`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(form.data)
-				});
-				if (response.ok) {
-					const res = await response.json();
-					resolve({ name: res.message });
-				} else {
-					const res = await response.json();
-					reject(res.errorMessage);
-				}
-			} catch (error: any) {
-				reject(error);
+	$: {
+		store.subscribe((state) => {
+			if(state.isProcessing) {
+				toast.loading(`Adding Movie ${form.data.title}`)
 			}
-		});
+		})
 	}
 </script>
 
@@ -53,7 +37,7 @@
 		<p class="text-xl font-semi-bold">Add a movie to your watch list</p>
 	</div>
 
-	<Form.Root class="mx-5" {form} schema={addSchema} let:config>
+	<Form.Root class="mx-5" method="POST" {form} schema={addSchema} let:config>
 		<Form.Field {config} name="title">
 			<Form.Item>
 				<Form.Label class="font-bold">Title</Form.Label>
@@ -91,17 +75,7 @@
 		</Form.Field>
 		<Form.Button
 			class="mt-2"
-			on:click={() => {
-				toast.promise(addMovie, {
-					loading: `Adding ${form.data.title}`,
-					success: (data) => {
-						return data.name;
-					},
-					error: (err) => {
-						return `${err}`;
-					}
-				});
-			}}>{`Add to watch list`}</Form.Button
+			formaction="?/addMovie">{`Add to watch list`}</Form.Button
 		>
 	</Form.Root>
 </div>
