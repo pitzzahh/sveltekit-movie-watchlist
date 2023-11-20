@@ -5,4 +5,8 @@
 	export let form: ActionData;
 </script>
 
-<AddMovieForm form={data.form} isValid={form?.valid} errMsg={form?.errorMessage} />
+<AddMovieForm 
+	form={data.form} 
+	isValid={form?.valid} 
+	errMsg={form?.errorMessage} 
+/>
