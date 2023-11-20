@@ -23,12 +23,13 @@
 		}
 	}
 
-
 	const fetchMovies = async (): Promise<Movie[]> => {
 		try {
-			const response: Response = await fetch('https://sveltekit-movie-watchlist.vercel.app/api/movies');
+			const response: Response = await fetch(
+				'https://sveltekit-movie-watchlist.vercel.app/api/movies'
+			);
 			if (response.ok) {
-				console.log(`Movies reponse ${JSON.stringify(response)}`)
+				console.log(`Movies reponse ${JSON.stringify(response)}`);
 				return await response.json();
 			} else {
 				console.error(`Failed to fetch movies. Status: ${response.status}`);
@@ -40,39 +41,36 @@
 		}
 	};
 
-	let moviesData = fetchMovies()
+	let moviesData: Promise<Movie[]> = Promise.resolve([]);
 
 	onMount(() => {
-		moviesData = fetchMovies()
-	})
-
-	
+		moviesData = fetchMovies();
+	});
 </script>
 
 <div in:fade>
 	{#await moviesData}
-	<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
-		{#each Array.from({ length: 10 }, (_, index) => index + 1) as option (option)}
-			<Card.Root class="w-full">
-				<Card.Header>
-					<Skeleton class="h-8 w-2/3 mb-2 bg-gray-300 rounded" />
-					<Skeleton class="h-4 w-1/3 bg-gray-300 rounded" />
-				</Card.Header>
-				<Card.Content>
-					<Skeleton class="h-4 w-1/4 bg-gray-300 rounded mb-1" />
-					<Skeleton class="h-4 w-1/5 bg-gray-300 rounded mb-1" />
-					<Skeleton class="h-4 w-1/4 bg-gray-300 rounded mb-1" />
-				</Card.Content>
-				<Card.Footer class="flex justify-between">
-					<Skeleton class="h-10 w-16 bg-gray-300 rounded" />
-					<Skeleton class="h-10 w-16 bg-gray-300 rounded" />
-				</Card.Footer>
-			</Card.Root>
-		{/each}
-	</div>
-
+		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
+			{#each Array.from({ length: 10 }, (_, index) => index + 1) as option (option)}
+				<Card.Root class="w-full">
+					<Card.Header>
+						<Skeleton class="h-8 w-2/3 mb-2 bg-gray-300 rounded" />
+						<Skeleton class="h-4 w-1/3 bg-gray-300 rounded" />
+					</Card.Header>
+					<Card.Content>
+						<Skeleton class="h-4 w-1/4 bg-gray-300 rounded mb-1" />
+						<Skeleton class="h-4 w-1/5 bg-gray-300 rounded mb-1" />
+						<Skeleton class="h-4 w-1/4 bg-gray-300 rounded mb-1" />
+					</Card.Content>
+					<Card.Footer class="flex justify-between">
+						<Skeleton class="h-10 w-16 bg-gray-300 rounded" />
+						<Skeleton class="h-10 w-16 bg-gray-300 rounded" />
+					</Card.Footer>
+				</Card.Root>
+			{/each}
+		</div>
 	{:then movies}
-		{#if movies.length == 0}
+		{#if movies.length != undefined && movies.length == 0}
 			<div class="m-5">
 				<Alert.Root>
 					<Film class="h-4 w-4" />
@@ -89,7 +87,7 @@
 				{/each}
 			</div>
 		{/if}
-		{:catch}
+	{:catch}
 		<Error {page} />
 	{/await}
 </div>
