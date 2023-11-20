@@ -6,11 +6,13 @@
 	export let page: Readable<Page<Record<string, string>, string | null>>
 </script>
 
-<Alert.Root variant="destructive">
-	<XCircle class="h-4 w-4" />
-	<Alert.Title class="font-bold">Heads up!</Alert.Title>
-	<Alert.Description class="text-center">
-		{$page.status}: {$page.error?.message}
-	</Alert.Description>
-</Alert.Root>
+<div class="m-5">
+	<Alert.Root variant="destructive">
+		<XCircle class="h-4 w-4" />
+		<Alert.Title class="font-bold">Heads up!</Alert.Title>
+		<Alert.Description class="text-center">
+			{$page.status}: {$page.error?.message}
+		</Alert.Description>
+	</Alert.Root>
+</div>
 

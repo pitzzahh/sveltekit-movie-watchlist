@@ -1,18 +1,9 @@
+import { fetchDataFromMongoDB, genres } from '$db/collections';
+import { mapFetchedGenreToType } from '$lib';
 import type { RequestHandler } from './$types';
 
-const genres = [
-	'horror',
-	'action',
-	'comedy',
-	'drama',
-	'science_fiction',
-	'romance',
-	'thriller',
-	'fantasy'
-];
-
 export const GET: RequestHandler = async () => {
-	return new Response(JSON.stringify(genres), {
+	return new Response(JSON.stringify((await fetchDataFromMongoDB(genres)).map((data) => mapFetchedGenreToType(data))), {
 		headers: {
 			'Content-Type': 'application/json'
 		}

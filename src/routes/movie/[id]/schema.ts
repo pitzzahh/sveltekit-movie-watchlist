@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 
-export const addSchema = z.object({
+export const updateSchema = z.object({
 	title: z
 		.string()
 		.min(2, { message: 'Title must be at least 2 characters long' })
@@ -9,18 +9,6 @@ export const addSchema = z.object({
 	genres: z
 		.string()
 		.min(3, { message: 'Genre must be at least 3 characters long' }),
-	// .refine(
-	// 	async (value) => {
-	// 	  const suggestedGenre = await suggestGenre(value);
-
-	// 	  if (suggestedGenre) {
-	// 		throw error(400, `Do you mean ${suggestedGenre}?`);
-	// 	  }
-
-	// 	  return true;
-	// 	},
-	// 	{ message: 'Invalid genre' }
-	//   ),
 	year: z
 		.string()
 		.min(4, { message: 'Year must be at least 4 characters long' })
@@ -40,4 +28,4 @@ export const addSchema = z.object({
 	movieId: z.string()
 });
 
-export type FormSchema = typeof addSchema;
+export type FormSchema = typeof updateSchema;
