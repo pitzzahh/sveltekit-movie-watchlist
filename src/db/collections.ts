@@ -2,15 +2,15 @@ import db from '$db/mongo';
 import { areStringsSimilar, mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
 import { type Collection, type FindCursor, type Document, type InsertManyResult, type InsertOneResult, ObjectId, type WithId } from 'mongodb';
 
-export const movies: Collection<Movie> = db.collection<Movie>('movies');
-export const genres: Collection<Genre> = db.collection<Genre>('genres');
+export const movies: Collection<MovieDTO> = db.collection<MovieDTO>('movies');
+export const genres: Collection<GenreDTO> = db.collection<GenreDTO>('genres');
 
 /**
  * Adds a new movie to the 'movies' collection.
  * @param movieData - The data for the new movie.
  * @returns Promise<string> - Resolves with the ID of the added movie.
  */
-export const addMovie = (movieData: any): Promise<string> => {
+export const addMovie = (movieData: MovieDTO): Promise<string> => {
 	return new Promise(async (resolve, reject) => {
 		return movies.insertOne(movieData)
 			.then((res: InsertOneResult<Movie>) => {
@@ -32,7 +32,7 @@ export const addMovie = (movieData: any): Promise<string> => {
  * @param genresData - The genres to be added.
  * @returns Promise<string[]> - Resolves with the ID of the added genres.
  */
-export const addGenres = (genresData: any): Promise<string[]> => {
+export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 	return new Promise(async (resolve, reject) => {
 		let genreIds: string[] = [];
 		console.log(`Initial genres: ${JSON.stringify(genresData)}`)
@@ -42,7 +42,7 @@ export const addGenres = (genresData: any): Promise<string[]> => {
 
 			console.log(`Mapped genres: ${JSON.stringify(mappedGenres)}`)
 
-			genresData.forEach(async (gData: Genre) => {
+			genresData.forEach(async (gData: GenreDTO) => {
 				console.log(`Reading genre: ${gData.name}`)
 				const foundGenre: Genre | undefined = mappedGenres.find((g) => {
 					const isTheSame: boolean = areStringsSimilar(gData.name, g.name)
