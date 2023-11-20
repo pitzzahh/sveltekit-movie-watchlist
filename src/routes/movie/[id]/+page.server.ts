@@ -1,20 +1,17 @@
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
-import { updateSchema } from '../schema';
 import { fail, type Actions, type RequestEvent, error } from '@sveltejs/kit';
 import { genres, getDocumentById, movies } from '$db/collections';
 import { mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
 import type { Document } from 'mongodb';
+import { updateSchema } from './schema';
 
 export const load = (async (event: RequestEvent) => {
     try {
+
         const fetchedMovie: Document = await getDocumentById(movies, event.params.id);
 
         const movie: Movie | undefined = mapFetchedMovieToType(fetchedMovie);
-
-        if (!movie) {
-            throw error(404, 'Movie not found');
-        }
 
         const movieGenres: string[] = movie.genres ? await Promise.all(movie.genres.map(async (genreId: string) => {
             const genreDoc: Document = await getDocumentById(genres, genreId);
@@ -28,7 +25,7 @@ export const load = (async (event: RequestEvent) => {
 
         return {
             movie: updatedMovie,
-            form: superValidate(updateSchema, {
+            form: await superValidate(updateSchema, {
                 id: 'updateSchema'
             }),
         };
@@ -45,9 +42,11 @@ export const actions: Actions = {
         });
         console.log(`Is modified movie data valid: ${form.valid}`);
         if (!form.valid) {
-            return fail(400, {
-                form
-            });
+            return {
+                form,
+                valid: false,
+                errorMessage: 'Invalid inputs!'
+            }
         }
 
         const genreArray: Genre[] = [];
@@ -61,9 +60,10 @@ export const actions: Actions = {
         });
 
         if (!event.params.id) {
-            return fail(400, {
-                form
-            });
+            return {
+                form,
+                errorMessage: `Cannot update movie with invalid id: ${event.params.id}`
+            }
         }
 
         let data: Movie = {

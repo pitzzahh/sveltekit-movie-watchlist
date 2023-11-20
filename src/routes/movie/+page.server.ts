@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
-import { modifySchema } from './schema';
+import { addSchema } from './schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { movies, addMovie, addGenres, fetchDataFromMongoDB } from '$db/collections';
 import type { InsertOneResult, MongoError, Document, MongoServerError } from 'mongodb';
@@ -8,14 +8,18 @@ import { areStringsSimilar, mapFetchedMovieToType } from '$lib';
 
 export const load = (async () => {
 	return {
-		form: (await superValidate(modifySchema))
+		form: await superValidate(addSchema, {
+			id: "addSchema"
+		})
 	};
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
 	default: async (event) => {
 		console.log('creating movie data..');
-		const form = await superValidate(event, modifySchema);
+		const form = await superValidate(event, addSchema, {
+			id: "addSchema"
+		});
 		console.log(`Is Valid: ${form.valid}`);
 
 		if (!form.valid) {
@@ -89,7 +93,6 @@ export const actions: Actions = {
 					error: JSON.stringify(error),
 					valid: false,
 					errorMessage: err.message
-
 				});
 			});
 	}
