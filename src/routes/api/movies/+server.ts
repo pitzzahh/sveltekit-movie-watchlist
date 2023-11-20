@@ -1,7 +1,7 @@
 import { fetchDataFromMongoDB, movies, genres, getDocumentById, addMovie, addGenres } from '$db/collections';
 import { mapFetchedMovieToType, mapFetchedGenreToType, areStringsSimilar, allowedOrigins } from '$lib';
 import type { RequestHandler } from './$types';
-import type { Document, InsertOneResult, MongoServerError } from 'mongodb';
+import type { Document, InsertOneResult, MongoServerError, UpdateResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { updateSchema } from '../../movie/[id]/schema';
 import { superValidate } from 'sveltekit-superforms/server';
@@ -33,13 +33,16 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const requestBody = await request.json()
 
+	console.log('Adding new movie')
+	console.log(`Request body: ${JSON.stringify(requestBody)}`)
 	const data: MovieDTO = {
 		title: requestBody.title,
-		genres: [],
+		genres: requestBody.genres,
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
 		watched: false
 	}
+	console.log(`Movie DTO: ${JSON.stringify(data)}`)
 
 	return fetchDataFromMongoDB(movies)
 		.then((movieDocuments: Document[]) => {
@@ -57,15 +60,15 @@ export const POST: RequestHandler = async ({ request }) => {
 				});
 			}
 
-			const genreArray: Genre[] = [];
+			const genres:GenreDTO[] = data.genres.map((genre) => {
+				return {
+					name: genre
+				}
+			})
 
-			const genreString: string[] = requestBody.genres.split(' ');
-			genreString.forEach((genre) => {
-				genreArray.push({ _id: '', name: genre });
-			});
-
-			return addGenres(genreArray)
+			return addGenres(genres)
 				.then(async (genreResult: string[]) => {
+					data.genres = genreResult
 					return addMovie(data)
 						.then((response: string) => {
 							let res: InsertOneResult<Movie> = JSON.parse(response);
@@ -198,7 +201,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 				})
 		}).catch((error: MongoServerError) => {
 			return new Response(JSON.stringify({ errorMesage: 'Cannot delete movie, it does not exist' }), {
-				status: 500,
+				status: 404,
 				headers: {
 					'Access-Control-Allow-Origin': '*',
 					'Access-Control-Allow-Methods': 'DELETE'
@@ -226,7 +229,6 @@ export const PATCH: RequestHandler = async (event) => {
 		});
 	}
 
-
 	console.log(`Is modified movie data valid: ${form.valid}`);
 	if (!form.valid) {
 		return new Response(JSON.stringify({ errorMesage: form.message }), {
@@ -250,8 +252,7 @@ export const PATCH: RequestHandler = async (event) => {
 
 	const requestBody = await event.request.json()
 
-	const data: Movie = {
-		_id: requestBody._id,
+	const data: MovieDTO = {
 		title: requestBody.title,
 		genres: [],
 		year: Number(requestBody.year),
@@ -259,17 +260,52 @@ export const PATCH: RequestHandler = async (event) => {
 		watched: false
 	}
 
-	// TODO: fix 
-	return new Response(JSON.stringify({
-		form,
-		movie: data,
-		message: 'Movie updated'
-	}), {
-		status: 202,
-		headers: {
-			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'PATCH'
-		}
-	});
-};
+	return getDocumentById(movies, requestBody.data._id)
+		.then(async (_fetchedMovie: Document) => {
+			const genreResult = await addGenres(genreArray);
+			return addGenres(genreArray)
+				.then(async(genresId: string[]) => {
+					data.genres = genresId
+					const result: UpdateResult<MovieDTO> = await movies.updateOne(
+						{ _id: new ObjectId(requestBody.data._id) },
+						{
+							$set: data
+						});
+	
+					const isAcknowledged = result.acknowledged;
+					const modifiedCount = result.modifiedCount;
+					const isUpdated = modifiedCount === 1;
+					const isValid = isAcknowledged && isUpdated;
+	
+					if (!isValid) {
+						return new Response(JSON.stringify({ errorMessage: `Request is ${isAcknowledged ? 'acknowledged' : 'not acknowledged'}, movie is ${isUpdated ? 'updated' : 'not updated'}  ` }), {
+							status: 400,
+							headers: {
+								'Access-Control-Allow-Origin': '*',
+								'Access-Control-Allow-Methods': 'PATCH'
+							}
+						});
+					}
+					return new Response(JSON.stringify({
+						form,
+						movie: data,
+						message: 'Movie updated'
+					}), {
+						status: 202,
+						headers: {
+							'Content-Type': 'application/json',
+							'Access-Control-Allow-Origin': '*',
+							'Access-Control-Allow-Methods': 'PATCH'
+						}
+					});
+				}).catch((error: MongoServerError) => {
+					return new Response(JSON.stringify({ errorMesage: `Failed to update movie ${data.title}: ${error.message}` }), {
+						status: 400,
+						headers: {
+							'Access-Control-Allow-Origin': '*',
+							'Access-Control-Allow-Methods': 'PATCH'
+						}
+					});
+				})
+		});
+}
