@@ -6,9 +6,9 @@ import { movies, addMovie, addGenres, fetchDataFromMongoDB } from '$db/collectio
 import type { InsertOneResult, MongoError, Document, MongoServerError } from 'mongodb';
 import { areStringsSimilar, mapFetchedMovieToType } from '$lib';
 
-export const load = (async () => {
+export const load = (() => {
 	return {
-		form: await superValidate(addSchema, {
+		form: superValidate(addSchema, {
 			id: "addSchema"
 		})
 	};
