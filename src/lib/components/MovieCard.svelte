@@ -1,37 +1,90 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form';
 	import * as Card from '$lib/components/ui/card';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
-	import { enhance } from '$app/forms';
+	import { toast } from 'svelte-sonner';
+	import { host, fetchMovies } from '$lib';
 	export let movie: Movie;
+
+	async function deleteMovie(): Promise<any> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response: Response = await fetch(`${host}/api/movies`, {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ id: movie._id })
+				});
+				if (response.ok) {
+					const res = await response.json();
+					resolve({ name: res.message });
+				} else {
+					const res = await response.json();
+					reject(res.errorMessage);
+				}
+			} catch (error: any) {
+				reject(error.name);
+			}
+		});
+	}
 </script>
 
-<form method="POST" class="w-full" use:enhance>
-	<Card.Root class="w-full">
-		<input class="sr-only" bind:value={movie._id} name="movieId" />
-		<Card.Header>
-			<Card.Title class="font-bold text-xl">{movie.title}</Card.Title>
-			<div class="flex overflow-y-auto scrollbar-hide gap-1">
-				{#each movie.genres as genre}
-					<Card.Description><Badge>{genre}</Badge></Card.Description>
-				{/each}
-			</div>
-		</Card.Header>
-		<Card.Content>
-			<p class="font-bold">Release Year: <span>{movie.year}</span></p>
-			<p class="font-bold">Rating: <span>{movie.rating}</span></p>
-			<p class="font-bold">Watched: <span>{movie.watched ? 'Yes' : 'No'}</span></p>
-		</Card.Content>
-		<Card.Footer class="flex justify-between">
-			<Button
-				on:click={() => {
-					console.log(`Movie Id in params: ${movie._id}`);
-					goto(`/movie/${movie._id}`);
-				}}>Modify</Button
-			>
-			<Form.Button variant="destructive" formaction="?/deleteMovie">Delete</Form.Button>
-		</Card.Footer>
-	</Card.Root>
-</form>
+<Card.Root class="w-full">
+	<Card.Header>
+		<Card.Title class="font-bold text-xl">{movie.title}</Card.Title>
+		<div class="flex overflow-y-auto scrollbar-hide gap-1">
+			{#each movie.genres as genre}
+				<Card.Description><Badge>{genre}</Badge></Card.Description>
+			{/each}
+		</div>
+	</Card.Header>
+	<Card.Content>
+		<p class="font-bold">Release Year: <span>{movie.year}</span></p>
+		<p class="font-bold">Rating: <span>{movie.rating}</span></p>
+		<p class="font-bold">Watched: <span>{movie.watched ? 'Yes' : 'No'}</span></p>
+	</Card.Content>
+	<Card.Footer class="flex justify-between">
+		<Tooltip.Root>
+			<Tooltip.Trigger asChild let:builder>
+				<Button
+					builders={[builder]}
+					on:click={() => {
+						console.log(`Movie Id in params: ${movie._id}`);
+						goto(`/movie/${movie._id}`);
+					}}>Modify</Button
+				>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>{`Modify ${movie.title}`}</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
+
+		<Tooltip.Root>
+			<Tooltip.Trigger asChild let:builder>
+				<Button
+					builders={[builder]}
+					variant="destructive"
+					on:click={() => {
+						toast.promise(deleteMovie, {
+							loading: `Deleting ${movie.title}`,
+							success: (data) => {
+								fetchMovies();
+								return data.name;
+							},
+							error: (err) => {
+								fetchMovies();
+								return `${err}`;
+							}
+						});
+					}}>Delete</Button
+				>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>{`Delete movie ${movie.title}`}</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
+	</Card.Footer>
+</Card.Root>
