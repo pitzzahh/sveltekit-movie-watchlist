@@ -2,7 +2,6 @@
 	import type { PageData, ActionData } from './$types';
 	import UpdateMovieForm from './UpdateMovieForm.svelte';
 	export let data: PageData;
-	export let form: ActionData;
 </script>
 
 <UpdateMovieForm
