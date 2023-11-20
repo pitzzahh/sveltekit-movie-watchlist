@@ -8,6 +8,4 @@
 <UpdateMovieForm
 	movie={data.movie}
 	form={data.form}
-	isValid={form?.valid}
-	errMsg={form?.errorMessage}
 />
