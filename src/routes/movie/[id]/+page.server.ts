@@ -1,12 +1,17 @@
-import type { PageServerLoad } from './$types';
+import type { EntryGenerator, PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, type Actions, type RequestEvent, error } from '@sveltejs/kit';
 import { genres, getDocumentById, movies } from '$db/collections';
-import { mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
+import { fetchMovies, mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
 import type { Document } from 'mongodb';
 import { updateSchema } from './schema';
 
 export const prerender = true;
+
+/** @type {import('./$types').EntryGenerator} */
+export async function entries() {
+	return (await fetchMovies()).map(movie => ({ id: movie._id }))
+}
 
 export const load = (async (event: RequestEvent) => {
     try {
