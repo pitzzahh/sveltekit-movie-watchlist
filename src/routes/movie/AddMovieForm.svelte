@@ -14,7 +14,7 @@
 	$: {
 		if (isValid) {
 			toast.success(
-				`Movie ${form.data.title} is now in the watch list'}`
+				`Movie ${form.data.title} is now in the watch list`
 			);
 			goto('/');
 		}
