@@ -1,10 +1,17 @@
-import type { PageServerLoad } from './$types';
+import type { EntryGenerator, PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, type Actions, type RequestEvent, error } from '@sveltejs/kit';
 import { genres, getDocumentById, movies } from '$db/collections';
-import { mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
+import { fetchMovies, mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
 import type { Document } from 'mongodb';
 import { updateSchema } from './schema';
+
+export const prerender = true;
+
+/** @type {import('./$types').EntryGenerator} */
+export async function entries() {
+	return (await fetchMovies()).map(movie => ({ id: movie._id }))
+}
 
 export const load = (async (event: RequestEvent) => {
     try {
@@ -33,54 +40,3 @@ export const load = (async (event: RequestEvent) => {
         throw error(500, `${err}`);
     }
 }) satisfies PageServerLoad;
-
-export const actions: Actions = {
-    updateMovie: async (event: RequestEvent<Partial<Record<string, string>>, string | null>) => {
-        console.log('modifying movie data..');
-        const form = await superValidate(event, updateSchema, {
-            id: 'updateSchema'
-        });
-        console.log(`Is modified movie data valid: ${form.valid}`);
-        if (!form.valid) {
-            return {
-                form,
-                valid: false,
-                errorMessage: 'Invalid inputs!'
-            }
-        }
-
-        const genreArray: Genre[] = [];
-
-        const genreString: string[] = form.data.genres.split(' ');
-        genreString.forEach((genre) => {
-            genreArray.push({
-                _id: '',
-                name: genre
-            });
-        });
-
-        if (!event.params.id) {
-            return {
-                form,
-                errorMessage: `Cannot update movie with invalid id: ${event.params.id}`
-            }
-        }
-
-        let data: Movie = {
-            _id: event.params.id,
-            title: form.data.title,
-            genres: [],
-            year: Number(form.data.year),
-            rating: Number(form.data.rating),
-            watched: false
-        };
-
-        // TODO: fix 
-        return {
-            form,
-            movie: data,
-            posted: form.posted,
-            valid: true
-        };
-    }
-}

@@ -1,5 +1,8 @@
+import { error } from "@sveltejs/kit";
 import type { Document } from "mongodb";
 import { writable } from "svelte/store";
+
+const dev = false;
 
 export const movieFormInfo = [
 	{
@@ -26,8 +29,7 @@ export const movieFormInfo = [
 ];
 
 export const store = writable({
-	openForm: false,
-	errorMessage: undefined
+	openForm: false
 });
 
 export const mapFetchedMovieToType = (fetchedMovie: Document): Movie => {
@@ -55,40 +57,47 @@ export const mapFetchedGenreToType = (fetchedGenre: Document): Genre => {
  * @returns {boolean} - True if the strings are similar, false otherwise.
  */
 export const areStringsSimilar = (a: string, b: string): boolean => {
-    let lowerStr1 = a.toLowerCase();
-    let lowerStr2 = b.toLowerCase();
+	let lowerA = a.toLowerCase();
+	let lowerB = b.toLowerCase();
 
-	if(a.includes('-')) {
-		lowerStr1 = a.replaceAll('-', ' ')
-	}
-
-	if(b.includes('-')) {
-		lowerStr1 = a.replaceAll('-', ' ')
-	}
-
-	if(lowerStr1 === lowerStr2) {
+	if (lowerA === lowerB) {
 		return true;
 	}
 
-	if(lowerStr1.includes(lowerStr2)) {
-		return true;
+	if (a.includes('-')) {
+		lowerA = lowerA.replaceAll('-', '')
 	}
 
-	if(lowerStr1.startsWith(lowerStr2)) {
-		return true;
+	if (b.includes('-')) {
+		lowerB = lowerB.replaceAll('-', '')
 	}
 
-	if(lowerStr2.startsWith(lowerStr1)) {
+	if (lowerA.includes(lowerB)) {
 		return true;
 	}
-
-    for (let char of lowerStr1) {
-        const charIndex = lowerStr2.indexOf(char);
-        if (charIndex !== -1) {
-            lowerStr2.slice(charIndex, 1);
-        } else {
-            return false;
-        }
-    }
-    return lowerStr2.length === 0;
+	
+	return lowerB.length === 0;
 }
+
+export const fetchMovies = async (): Promise<Movie[]> => {
+	try {
+		console.log('Fetching movies from api server')
+		const response: Response = await fetch(
+			`${host}/api/movies`,
+			{
+				method: 'GET'
+			}
+		);
+		if (response.ok) {
+			return await response.json();
+		} else {
+			throw error(response.status, `Failed to fetch movies. Status: ${response.statusText}`);
+		}
+	} catch (err) {
+		throw error(400, `Error fetching movies: ${err}`);
+	}
+};
+
+export const host = dev ? 'http://localhost:5173' : 'https://sveltekit-movie-watchlist.vercel.app'
+
+export const allowedOrigins = ['http://localhost:5173', 'https://sveltekit-movie-watchlist.vercel.app'];
