@@ -3,10 +3,10 @@ import { fetchDataFromMongoDB, genres, getDocumentById, movies } from '$db/colle
 import { superValidate } from 'sveltekit-superforms/server';
 import { error, type Actions, fail } from '@sveltejs/kit';
 import { mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
-import type { DeleteResult, Document } from 'mongodb';
 import { deleteSchema } from './schema';
+import type { DeleteResult, Document } from 'mongodb';
 
-export const load = (async ({ fetch }) => {
+export const load = (async () => {
 	try {
 		const movieDocuments: Document[] = await fetchDataFromMongoDB(movies);
 		const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc))
@@ -22,9 +22,7 @@ export const load = (async ({ fetch }) => {
 
 		return {
 			movies: finalMovies,
-			form: superValidate(deleteSchema, {
-				id: 'deleteSchema'
-			})
+			form: await superValidate(deleteSchema)
 		};
 	} catch (err: any) {
 		throw error(500, `${err}`)
@@ -34,34 +32,53 @@ export const load = (async ({ fetch }) => {
 
 // create a server action named deleteMovie
 export const actions: Actions = {
-	deleteMovie: async (event) => {
+	deleteMovie: async ({ cookies, request }) => {
 		console.log('deleting movie data..');
-		const form = await superValidate(event, deleteSchema, {
-			id: 'deleteSchema'
-		});
-		if (!form.valid) {
-			return fail(400, {
-				form
-			});
+		const data = await request.formData();
+
+		const movieIdData = data.get('movieId')
+
+		console.log(`Found id: ${movieIdData}`)
+
+		if (!movieIdData) {
+			return {
+				valid: false,
+				errorMessage: "Invalid movie Id"
+			}
 		}
 
-		const movieId: string = form.data.movieId;
-		console.log(`Deleting movie with id: ${movieId}`)
+		const movieId: string = movieIdData.toString()
+
+		const fetchedMovie: Document = await getDocumentById(movies, movieId);
+
+		if(!fetchedMovie) {
+			return {
+				valid: false,
+				errorMessage: `Movie with id ${movieId} is not a movie document!`
+			}
+		}
+
+		console.log(`Deleting movie with id: ${movieIdData}`)
 
 		try {
-			const response: DeleteResult = await movies.deleteOne({ _id: movieId })
-			const isValid = response.acknowledged && response.deletedCount === 1;
+			const response: DeleteResult = await movies.deleteOne({ $oid: movieId })
+			const isAcknowledged = response.acknowledged;
+			const deleteCount = response.deletedCount;
+			const isValid = isAcknowledged && deleteCount === 1;
+
+			console.log(`is acknowledged: ${response.acknowledged}`)
+			console.log(`Delete count: ${deleteCount}`)
 
 			if (!isValid) {
-				return fail(400, {
-					form,
+				return {
+					valid: false,
 					errorMessage: "Cannot delete movie, "
-				});
+				}
 			}
+
 			return {
-				form,
 				valid: isValid,
-				errorMessage: `Movie with id ${movieId} removd sucessfully`
+				message: `Movie with id ${movieIdData} removed sucessfully`
 			};
 		} catch (err: any) {
 			throw error(500, `${err}`)
