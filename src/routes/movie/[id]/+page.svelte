@@ -1,15 +1,13 @@
 <script lang="ts">
-	import MovieForm from '$lib/components/MovieForm.svelte';
 	import type { PageData, ActionData } from './$types';
+	import UpdateMovieForm from './UpdateMovieForm.svelte';
 	export let data: PageData;
 	export let form: ActionData;
 </script>
 
-<MovieForm
+<UpdateMovieForm
 	movie={data.movie}
 	form={data.form}
 	isValid={form?.valid}
-	heading="Update Movie"
-	subHeading="Update your movie"
-	isModifying={true}
+	errMsg={form?.errorMessage}
 />
