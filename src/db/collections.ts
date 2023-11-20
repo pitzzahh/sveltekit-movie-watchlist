@@ -35,22 +35,15 @@ export const addMovie = (movieData: MovieDTO): Promise<string> => {
 export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 	return new Promise(async (resolve, reject) => {
 		let genreIds: string[] = [];
-		console.log(`Initial genres: ${JSON.stringify(genresData)}`)
 		try {
 			const genresDocument: Document[] = await fetchDataFromMongoDB(genres)
 			const mappedGenres: Genre[] = genresDocument.map((doc: Document) => mapFetchedGenreToType(doc))
-
-			console.log(`Mapped genres: ${JSON.stringify(mappedGenres)}`)
-
 			genresData.forEach(async (gData: GenreDTO) => {
-				console.log(`Reading genre: ${gData.name}`)
 				const foundGenre: Genre | undefined = mappedGenres.find((g) => {
 					const isTheSame: boolean = areStringsSimilar(gData.name, g.name)
-					console.info(`Is ${gData.name} same with ${g.name} : ${isTheSame}`)
 					return isTheSame
 				})
 				if (foundGenre) {
-					console.info(`Found genre: ${gData.name}, adding to genreList`)
 					genreIds = [...genreIds, foundGenre._id.toString()]
 				} else {
 					console.info(`New Genre: ${gData.name}, adding to collection`)
@@ -58,7 +51,7 @@ export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 						name: gData.name
 					}
 					await genres.insertOne(genreToBeAdded)
-						.then((result) => {
+						.then((result: InsertOneResult<GenreDTO>) => {
 							genreIds = [...genreIds, result.insertedId.toString()]
 						})
 				}
