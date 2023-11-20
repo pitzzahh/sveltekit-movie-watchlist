@@ -197,7 +197,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 					});
 				})
 		}).catch((error: MongoServerError) => {
-			return new Response(JSON.stringify({ errorMesage: error.message }), {
+			return new Response(JSON.stringify({ errorMesage: 'Cannot delete movie, it does not exist' }), {
 				status: 500,
 				headers: {
 					'Access-Control-Allow-Origin': '*',
