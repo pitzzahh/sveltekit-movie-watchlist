@@ -3,7 +3,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Sun, Moon, Clapperboard } from 'lucide-svelte';
 	import { onMount } from 'svelte';
-	import { store } from '$lib';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { page } from '$app/stores';
 	import { goto, onNavigate } from '$app/navigation';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -25,7 +25,7 @@
 		function handleKeydown(e: KeyboardEvent) {
 			if (e.key === 'j' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
-				goto(`${$page.route.id === '/' ? '/movie' : '/'}`)
+				goto(`${$page.route.id === '/' ? '/movie' : '/'}`);
 			}
 		}
 
@@ -46,13 +46,20 @@
 >
 	<div class="flex items-center gap-1">
 		<Clapperboard size={32} />
-		<a href="/" class="font-bold text-3xl md:text-3xl cursor-pointer">Movie Watchlist</a>
+		<a href="/" class="font-bold text-2xl md:text-3xl cursor-pointer">Movie Watchlist</a>
 	</div>
 
 	<div class="flex items-center space-x-4">
-		<a href={buttonText == 'Home' ? '/' : '/movie'} class={buttonVariants({ variant: 'outline' })}>
-			{buttonText} <span class="text-slate-600 ml-2">⌘J</span>
-		</a>
+		<Tooltip.Root>
+			<Tooltip.Trigger asChild let:builder>
+				<Button href={buttonText == 'Home' ? '/' : '/movie'} builders={[builder]} variant="outline"
+					>{buttonText} <span class="text-slate-600 ml-2">⌘J</span></Button
+				>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p>{buttonText == 'Home' ? 'Go Home' : 'Add a movie to watch list'}</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 
 		<DropdownMenu.Root positioning={{ placement: 'bottom-end' }}>
 			<DropdownMenu.Trigger asChild let:builder>
