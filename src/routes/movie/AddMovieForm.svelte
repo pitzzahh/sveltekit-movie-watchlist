@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { movieFormInfo } from '$lib';
+	import { host, movieFormInfo } from '$lib';
 	import * as Form from '$lib/components/ui/form';
 	import { addSchema } from './schema';
 	import { toast } from 'svelte-sonner';
@@ -7,21 +7,43 @@
 	import { scale } from 'svelte/transition';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { FormSchema } from './schema';
+	import { Button } from '$lib/components/ui/button';
 	export let errMsg: string = '';
 	export let form: SuperValidated<FormSchema>;
 	export let isValid: boolean | undefined = undefined;
 
 	$: {
 		if (isValid) {
-			toast.success(
-				`Movie ${form.data.title} is now in the watch list`
-			);
+			toast.success(`Movie ${form.data.title} is now in the watch list`);
 			goto('/');
 		}
 
 		if (isValid != undefined && !isValid) {
 			toast.error(`Failed to add movie: ${errMsg}`);
 		}
+	}
+
+	async function addMovie(): Promise<any> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response: Response = await fetch(`${host}/api/movies`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(form.data)
+				});
+				if (response.ok) {
+					const res = await response.json();
+					resolve({ name: res.message });
+				} else {
+					const res = await response.json();
+					reject(res.errorMessage);
+				}
+			} catch (error: any) {
+				reject(error);
+			}
+		});
 	}
 </script>
 
@@ -31,11 +53,11 @@
 		<p class="text-xl font-semi-bold">Add a movie to your watch list</p>
 	</div>
 
-	<Form.Root class="mx-5" method="POST" {form} schema={addSchema} let:config>
+	<Form.Root class="mx-5" {form} schema={addSchema} let:config>
 		<Form.Field {config} name="title">
 			<Form.Item>
 				<Form.Label class="font-bold">Title</Form.Label>
-				<Form.Input placeholder={movieFormInfo[0].description}  />
+				<Form.Input placeholder={movieFormInfo[0].description} />
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
@@ -43,14 +65,13 @@
 			<Form.Item>
 				<Form.Label>Genres</Form.Label>
 				<Form.Input placeholder={movieFormInfo[1].description} />
-
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
 		<Form.Field {config} name="year">
 			<Form.Item>
 				<Form.Label>Year of release</Form.Label>
-					<Form.Input placeholder={movieFormInfo[2].description} />
+				<Form.Input placeholder={movieFormInfo[2].description} />
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
@@ -61,14 +82,26 @@
 					<Form.SelectTrigger placeholder={movieFormInfo[3].description} />
 					<Form.SelectContent class="overflow-y-auto scrollbar-hide h-40">
 						{#each Array.from({ length: 10 }, (_, index) => index + 1) as option (option)}
-						<Form.SelectItem value={option.toString()}>{option}</Form.SelectItem>
-
+							<Form.SelectItem value={option.toString()}>{option}</Form.SelectItem>
 						{/each}
 					</Form.SelectContent>
 				</Form.Select>
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
-		<Form.Button class="mt-2">`Add ${form.data.title} to watch list`</Form.Button>
+		<Form.Button
+			class="mt-2"
+			on:click={() => {
+				toast.promise(addMovie, {
+					loading: `Adding ${form.data.title}`,
+					success: (data) => {
+						return data.name;
+					},
+					error: (err) => {
+						return `${err}`;
+					}
+				});
+			}}>{`Add to watch list`}</Form.Button
+		>
 	</Form.Root>
 </div>
