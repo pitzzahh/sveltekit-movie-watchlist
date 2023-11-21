@@ -3,7 +3,7 @@ import type { Document } from 'mongodb';
 import { writable } from 'svelte/store';
 import s from 'string-similarity';
 
-const dev = true;
+const dev = false;
 
 export const movieFormInfo = [
 	{
