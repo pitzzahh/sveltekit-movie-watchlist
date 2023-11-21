@@ -52,6 +52,9 @@ devDependencies:
   '@sveltejs/kit':
     specifier: ^1.27.4
     version: 1.27.6(svelte@4.2.3)(vite@4.5.0)
+  '@types/string-similarity':
+    specifier: ^4.0.2
+    version: 4.0.2
   '@typescript-eslint/eslint-plugin':
     specifier: ^6.0.0
     version: 6.11.0(@typescript-eslint/parser@6.11.0)(eslint@8.53.0)(typescript@5.2.2)
@@ -615,6 +618,10 @@ packages:
 
   /@types/semver@7.5.5:
     resolution: {integrity: sha512-+d+WYC1BxJ6yVOgUgzK8gWvp5qF8ssV5r4nsDcZWKRWcDQLQ619tvWAxJQYGgBrO1MnLJC7a5GtiYsAoQ47dJg==}
+    dev: true
+
+  /@types/string-similarity@4.0.2:
+    resolution: {integrity: sha512-LkJQ/jsXtCVMK+sKYAmX/8zEq+/46f1PTQw7YtmQwb74jemS1SlNLmARM2Zml9DgdDTWKAtc5L13WorpHPDjDA==}
     dev: true
 
   /@types/webidl-conversions@7.0.3:
