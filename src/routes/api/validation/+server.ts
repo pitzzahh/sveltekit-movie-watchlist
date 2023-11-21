@@ -1,55 +1,76 @@
 import type { RequestHandler } from './$types';
 
-import tf from '@tensorflow/tfjs';
+import tensorFlow from '@tensorflow/tfjs-node';
 import use from '@tensorflow-models/universal-sentence-encoder';
 
-// Load the Universal Sentence Encoder model
 const loadModel = async () => {
-  return await use.load();
+	return await use.load();
 };
 
-// Handle the POST request
 export const POST: RequestHandler = async ({ request }) => {
-  try {
-    // Ensure the request method is POST
-    if (request.method !== 'POST') {
-      return new Response('Method Not Allowed', { status: 405 });
-    }
+	try {
+		if (request.method !== 'POST') {
+			return new Response(JSON.stringify({ errorMessage: `Method not allowed` }), {
+				status: 405,
+				headers: {
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'POST'
+				}
+			});
+		}
 
-    // Parse the JSON body from the request
-    const body = await request.json();
-    
-    // Ensure the required properties are present in the request body
-    const { string1, string2 } = body;
-    if (!string1 || !string2) {
-      return new Response('Invalid request body', { status: 400 });
-    }
+		const body = await request.json();
 
-    // Load the Universal Sentence Encoder model
-    const model = await loadModel();
+		const { a, b } = body;
+		if (!a || !b) {
+			return new Response(JSON.stringify({ errorMessage: `Invalid Request Body` }), {
+				status: 400,
+				headers: {
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'POST'
+				}
+			});
+		}
 
-    // Embed the sentences
-    const embeddings1 = await model.embed([string1]);
-    const embeddings2 = await model.embed([string2]);
-    
-    // Convert Tensor2D to Tensor<Rank>
-    const tensor1: tf.Tensor<tf.Rank> = embeddings1 as unknown as tf.Tensor<tf.Rank>;
-    const tensor2: tf.Tensor<tf.Rank> = embeddings2 as unknown as tf.Tensor<tf.Rank>;
-    
-    // Calculate cosine similarity
-    const similarity = tf.matMul(tensor1, tensor2, false, true).dataSync()[0];
+		// Load the Universal Sentence Encoder model
+		const model = await loadModel();
 
-    // Adjust the threshold as needed
-    const threshold = 0.8; // Adjust as needed based on your use case
+		// Embed the sentences
+		const firstEmbed = await model.embed([a]);
+		const secondEmbed = await model.embed([b]);
 
-    // Construct the response based on the similarity result
-    const responseText = similarity >= threshold ? 'Similar' : 'Not Similar';
+		// Convert Tensor2D to Tensor<Rank>
+		const firstTensor: tensorFlow.Tensor<tensorFlow.Rank> =
+			firstEmbed as unknown as tensorFlow.Tensor<tensorFlow.Rank>;
+		const secondTensor: tensorFlow.Tensor<tensorFlow.Rank> =
+			secondEmbed as unknown as tensorFlow.Tensor<tensorFlow.Rank>;
 
-    // Return the response
-    return new Response(responseText, { status: 200 });
-  } catch (error) {
-    // Handle any errors that may occur
-    console.error('Error processing request:', error);
-    return new Response('Internal Server Error', { status: 500 });
-  }
+		// Calculate cosine similarity
+		const similarity = tensorFlow.matMul(firstTensor, secondTensor, false, true).dataSync()[0];
+
+		// Adjust the threshold as needed
+		const threshold = 0.8; // Adjust as needed based on your use case
+
+		// Return the response
+		return new Response(JSON.stringify({ similar: similarity >= threshold }), {
+			status: 200,
+			headers: {
+				'Content-Type': 'application/json',
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'POST'
+			}
+		});
+	} catch (error) {
+		console.error('Error processing request:', error);
+		return new Response(JSON.stringify({ errorMessage: `Error processing request: ${error}` }), {
+			status: 500,
+			headers: {
+				'Content-Type': 'application/json',
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'POST'
+			}
+		});
+	}
 };
