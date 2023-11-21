@@ -38,6 +38,8 @@
 	"dependencies": {
 		"@tensorflow-models/universal-sentence-encoder": "^1.3.3",
 		"@tensorflow/tfjs": "^4.13.0",
+		"@tensorflow/tfjs-node": "^4.13.0",
+		"@tensorflow/tfjs-node-gpu": "^4.13.0",
 		"bits-ui": "^0.9.7",
 		"clsx": "^2.0.0",
 		"formsnap": "^0.4.1",
