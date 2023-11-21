@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { Document } from 'mongodb';
 import { writable } from 'svelte/store';
 
-const dev = false;
+const dev = true;
 
 export const movieFormInfo = [
 	{
