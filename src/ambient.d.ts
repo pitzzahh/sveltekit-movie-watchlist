@@ -15,7 +15,6 @@ type MovieDTO = {
     watched: boolean | false;
 }
 
-
 type Genre = {
     _id: string;
     name: string;

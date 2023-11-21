@@ -1,6 +1,16 @@
 import db from '$db/mongo';
 import { areStringsSimilar, mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
-import { type Collection, type FindCursor, type Document, type InsertManyResult, type InsertOneResult, ObjectId, type WithId } from 'mongodb';
+import { error } from '@sveltejs/kit';
+import {
+	type Collection,
+	type FindCursor,
+	type Document,
+	type InsertManyResult,
+	type InsertOneResult,
+	ObjectId,
+	type WithId,
+	MongoServerError
+} from 'mongodb';
 
 export const movies: Collection<MovieDTO> = db.collection<MovieDTO>('movies');
 export const genres: Collection<GenreDTO> = db.collection<GenreDTO>('genres');
@@ -12,7 +22,8 @@ export const genres: Collection<GenreDTO> = db.collection<GenreDTO>('genres');
  */
 export const addMovie = (movieData: MovieDTO): Promise<string> => {
 	return new Promise(async (resolve, reject) => {
-		return movies.insertOne(movieData)
+		return movies
+			.insertOne(movieData)
 			.then((res: InsertOneResult<Movie>) => {
 				if (res.acknowledged) {
 					resolve(JSON.stringify(res));
@@ -22,76 +33,95 @@ export const addMovie = (movieData: MovieDTO): Promise<string> => {
 			})
 			.catch((err) => {
 				reject(`Error adding movie: ${err}`);
-			})
+			});
 	});
 };
 
-
 /**
- * Adds a new genres to the 'genres' collection.
+ * Adds new genres to the 'genres' collection.
  * @param genresData - The genres to be added.
  * @returns Promise<string[]> - Resolves with the ID of the added genres.
  */
 export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 	return new Promise(async (resolve, reject) => {
 		let genreIds: string[] = [];
-		console.log(`Initial genres: ${JSON.stringify(genresData)}`)
-		try {
-			const genresDocument: Document[] = await fetchDataFromMongoDB(genres)
-			const mappedGenres: Genre[] = genresDocument.map((doc: Document) => mapFetchedGenreToType(doc))
+		return fetchDataFromMongoDB(genres)
+			.then(async (genresDocument: Document[]) => {
+				const mappedGenres: Genre[] = genresDocument.map((doc: Document) =>
+					mapFetchedGenreToType(doc)
+				);
 
-			console.log(`Mapped genres: ${JSON.stringify(mappedGenres)}`)
+				for (const gData of genresData) {
+					const foundGenre: Genre | undefined = mappedGenres.find(
+						async (g) => await areStringsSimilar(g.name, gData.name)
+					);
+					console.log(`Similar Genre: ${JSON.stringify(foundGenre)}`);
 
-			genresData.forEach(async (gData: GenreDTO) => {
-				console.log(`Reading genre: ${gData.name}`)
-				const foundGenre: Genre | undefined = mappedGenres.find((g) => {
-					const isTheSame: boolean = areStringsSimilar(gData.name, g.name)
-					console.info(`Is ${gData.name} same with ${g.name} : ${isTheSame}`)
-					return isTheSame
-				})
-				if (foundGenre) {
-					console.info(`Found genre: ${gData.name}, adding to genreList`)
-					genreIds = [...genreIds, foundGenre._id.toString()]
-				} else {
-					console.info(`New Genre: ${gData.name}, adding to collection`)
-					const genreToBeAdded: any = {
-						name: gData.name
+					if (foundGenre) {
+						genreIds = [...genreIds, foundGenre._id.toString()];
+					} else {
+						const genreToBeAdded: GenreDTO = {
+							name: gData.name
+						};
+
+						console.info(`New Genre: ${JSON.stringify(genreToBeAdded)}, adding to collection`);
+
+						const addingResult = await genres
+							.insertOne(genreToBeAdded)
+							.then((result: InsertOneResult<Genre>) => {
+								genreIds = [...genreIds, result.insertedId.toString()];
+								console.log(`Genre ${JSON.stringify(genreToBeAdded.name)} added to collection`);
+							})
+							.catch((err: MongoServerError) => {
+								console.error(`${err.message}`);
+							});
 					}
-					await genres.insertOne(genreToBeAdded)
-						.then((result) => {
-							genreIds = [...genreIds, result.insertedId.toString()]
-						})
 				}
+				console.log('Done adding genres to collection');
+				resolve(genreIds);
+			})
+			.catch((error: MongoServerError) => {
+				reject(error.message);
 			});
-
-			console.log('Done adding genres to collection')
-			resolve(genreIds);
-		} catch (error) {
-			reject(error)
-		}
 	});
 };
-
 
 export const updateMovieByid = async (id: string, movie: Movie): Promise<boolean> => {
 	return new Promise(async (resolve, reject) => {
-		const movieDocuments: Document[] = await fetchDataFromMongoDB(movies, { _id: new ObjectId(id) })
-		const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc))
-		const res: Movie | undefined = mappedMovies.find((m) => m.title === movie.title)
+		const movieDocuments: Document[] = await fetchDataFromMongoDB(movies, {
+			_id: new ObjectId(id)
+		});
+		const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc));
+		const res: Movie | undefined = mappedMovies.find((m) => m.title === movie.title);
 	});
-}
-
-
-export const fetchDataFromMongoDB = async (collection: any, options?: Record<string, any>): Promise<Document[]> => {
-	const cursor: FindCursor<Document[]> = collection.find(options);
-	return await cursor.toArray();
 };
 
-export const getDocumentById = async (collection: Collection<any>, id: string | undefined): Promise<Document> => {
+export const fetchDataFromMongoDB = async (
+	collection: any,
+	options?: Record<string, any>
+): Promise<Document[]> => {
+	try {
+		const cursor: FindCursor<Document[]> = collection.find(options);
+		return await cursor.toArray();
+	} catch (err: any) {
+		throw error(err.code ? Number(err.code) : 500, `Error fetching data from MongoDB: ${error}`);
+	}
+};
+
+// Modify getDocumentById method
+export const getDocumentById = async (
+	collection: Collection<any>,
+	id: string | undefined
+): Promise<Document> => {
 	return new Promise(async (resolve, reject) => {
-		if (id === undefined) {
-			reject('Cannot find document, id is undefined')
+		try {
+			const result: Document[] = await fetchDataFromMongoDB(collection, { _id: new ObjectId(id) });
+			if (result.length === 0) {
+				reject(`Document with id ${id} not found`);
+			}
+			resolve(result[0]);
+		} catch {
+			reject(`Document with id ${id} not found`);
 		}
-		resolve((await fetchDataFromMongoDB(collection, { _id: new ObjectId(id) }))[0])
 	});
-}
+};

@@ -7,27 +7,26 @@
 	import * as Alert from '$lib/components/ui/alert';
 	import { fade } from 'svelte/transition';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { fetchMovies } from '$lib';
+	import { fetchMovies, store } from '$lib';
 
-	let moviesData: Promise<Movie[]> = Promise.resolve([]);
-
-	$: reactiveMovieData = moviesData // how to add console log when this executed
-
-	$: {
-		console.log('Reactive data executed:', reactiveMovieData);
-	}
-	
-	onMount(() => {
-		moviesData = fetchMovies();
+	onMount( () => {
+		try {
+			return store.update((state) => ({
+				...state,
+				movies: fetchMovies()
+			}));
+		} catch (err) {
+			throw error(500, `${JSON.stringify(err)}`)
+		}
 	});
 </script>
 
 <div in:fade>
-	{#await reactiveMovieData}
+	{#await $store.movies}
 		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
-			{#each Array.from({ length: 10 }, (_, index) => index + 1) as option (option)}
+			{#each Array.from({ length: 6 }, (_, index) => index + 1) as option (option)}
 				<Card.Root class="w-full">
 					<Card.Header>
 						<Skeleton class="h-5 w-3/4 mb-2 bg-gray-300 rounded" />

@@ -5,7 +5,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
-	import { host, fetchMovies } from '$lib';
+	import { host, fetchMovies, store } from '$lib';
 	export let movie: Movie;
 
 	async function deleteMovie(): Promise<any> {
@@ -71,11 +71,13 @@
 						toast.promise(deleteMovie, {
 							loading: `Deleting ${movie.title}`,
 							success: (data) => {
-								fetchMovies();
+								store.update((state) => ({
+									...state,
+									movies: fetchMovies()
+								}));
 								return data.name;
 							},
 							error: (err) => {
-								fetchMovies();
 								return `${err}`;
 							}
 						});

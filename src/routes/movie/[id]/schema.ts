@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 
-export const updateSchema = z.object({
+export const modifySchema = z.object({
 	title: z
 		.string()
 		.min(2, { message: 'Title must be at least 2 characters long' })
@@ -28,4 +28,4 @@ export const updateSchema = z.object({
 	movieId: z.string()
 });
 
-export type FormSchema = typeof updateSchema;
+export type FormSchema = typeof modifySchema;

@@ -1,34 +1,28 @@
 <script lang="ts">
-	import { host, movieFormInfo } from '$lib';
+	import { movieFormInfo, store } from '$lib';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Form from '$lib/components/ui/form';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
 	import { scale } from 'svelte/transition';
 	import type { SuperValidated } from 'sveltekit-superforms';
-	import { updateSchema, type FormSchema } from './schema';
+	import { modifySchema, type FormSchema } from './schema';
+	import { goto } from '$app/navigation';
 	export let movie: Movie;
 	export let form: SuperValidated<FormSchema>;
+	export let errMsg: string = '';
+	export let isValid: boolean | undefined = undefined;
 
-	async function updateMovie(): Promise<any> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const response: Response = await fetch(`${host}/api/movies`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(form.data)
-				});
-				if (response.ok) {
-					const res = await response.json();
-					resolve({ name: res.message });
-				} else {
-					const res = await response.json();
-					reject(res.errorMessage);
-				}
-			} catch (error: any) {
-				reject(error);
+	$: {
+		store.subscribe((state) => {
+			if (isValid) {
+				toast.success(`Movie ${state.movie} is now updated`);
+				goto('/');
+			}
+			if (isValid != undefined && !isValid) {
+				toast.error(`Failed to add movie: ${errMsg}`);
+			}
+			if (state.isProcessing) {
+				toast.loading(`Updating Movie ${form.data.title}`);
 			}
 		});
 	}
@@ -40,7 +34,7 @@
 		<p class="text-xl font-semi-bold">{`Update Movie ${movie.title}`}</p>
 	</div>
 
-	<Form.Root class="mx-5" {form} schema={updateSchema} let:config>
+	<Form.Root class="mx-5" method="POST" {form} schema={modifySchema} let:config>
 		<Form.Field {config} name="title">
 			<Form.Item>
 				<Form.Label class="font-bold">Title</Form.Label>
@@ -81,20 +75,8 @@
 		</Form.Field>
 		<Tooltip.Root>
 			<Tooltip.Trigger asChild let:builder>
-				<Form.Button
-					builders={[builder]}
-					class="mt-2"
-					on:click={() => {
-						toast.promise(updateMovie, {
-							loading: `Updating ${form.data.title}`,
-							success: (data) => {
-								return data.name;
-							},
-							error: (err) => {
-								return `${err}`;
-							}
-						});
-					}}>{`Update movie ${movie.title}`}</Form.Button
+				<Form.Button builders={[builder]} class="mt-2" formaction="?/modifyMovie"
+					>{`Update movie ${movie.title}`}</Form.Button
 				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
