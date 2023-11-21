@@ -12,11 +12,11 @@
 	import { fetchMovies, host, store } from '$lib';
 	import { userPrefersMode } from 'mode-watcher';
 
-	// export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
-	// export let pageDescription =
-	// 	'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
-	// export let pageUrl = host;
-	// export let photoUrl = host
+	export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
+	export let pageDescription =
+		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
+	export let pageUrl = host;
+	export let photoUrl = host
 	onMount(() => {
 		try {
 			return store.update((state) => ({
@@ -29,7 +29,7 @@
 	});
 </script>
 
-<!-- <svelte:head>
+<svelte:head>
 	<title>{pageTitle}</title>
 	<meta name="description" content={pageDescription} />
 	<meta name="author" content="Peter John Arao" />
@@ -51,7 +51,7 @@
 	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
-</svelte:head> -->
+</svelte:head>
 
 <div in:fade>
 	{#await $store.movies}
