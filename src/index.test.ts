@@ -8,31 +8,28 @@ describe('sum test', () => {
 });
 
 describe('similarity-test', () => {
-	it('check if ScienceFiction is similar to Science Fiction', () => {
+	it('check if ScienceFiction is similar to Science Fiction', async () => {
 		const firstString = 'ScienceFiction'
 		const secondString = 'Science Fiction'
-		expect(
-			areStringsSimilar(firstString, secondString)
-		).toBe(true);
+		const response = await areStringsSimilar(firstString, secondString)
+		expect(response).toBe(true);
 	});
 });
 
 describe('similarity-test', () => {
-	it('check if Comedy is similar to RomaticComedy', () => {
+	it('check if Comedy is similar to RomaticComedy', async () => {
 		const firstString = 'ScienceFiction'
 		const secondString = 'Science Fiction'
-		expect(
-			areStringsSimilar(firstString, secondString)
-		).toBe(false);
+		const response = await areStringsSimilar(firstString, secondString)
+		expect(response).toBe(false);
 	});
 });
 
 describe('similarity-test', () => {
-	it('check if ScienceFiction is similar to Science-Fiction', () => {
+	it('check if ScienceFiction is similar to Science-Fiction', async () => {
 		const firstString = 'ScienceFiction'
 		const secondString = 'Science-Fiction'
-		expect(
-			areStringsSimilar(firstString, secondString)
-		).toBe(true);
+		const response = await areStringsSimilar(firstString, secondString)
+		expect(response).toBe(true);
 	});
 });

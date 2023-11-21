@@ -19,16 +19,17 @@ export const actions: Actions = {
 			id: "addSchema"
 		});
 
-		store.update((state) => ({
-			...state,
-			isProcessing: true
-		}));
-
 		if (!form.valid) {
 			return fail(400, {
 				form
 			});
 		}
+
+		store.update((state) => ({
+			...state,
+			movie: form.data.title,
+			isProcessing: true
+		}));
 
 		const genres: string[] = form.data.genres.split(' ')
 			.map((genre) => genre)
@@ -53,6 +54,11 @@ export const actions: Actions = {
 			});
 			const res = await response.json();
 
+			store.update((state) => ({
+				...state,
+				isProcessing: false
+			}));
+
 			return {
 				form,
 				result: res,
@@ -60,10 +66,6 @@ export const actions: Actions = {
 				errorMessage: res.errorMessage
 			};
 
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
 		} catch (error: any) {
 			store.update((state) => ({
 				...state,

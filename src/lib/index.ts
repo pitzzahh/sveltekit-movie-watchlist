@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import type { Document } from "mongodb";
 import { writable } from "svelte/store";
 
-const dev = false;
+const dev = true;
 
 export const movieFormInfo = [
 	{
@@ -29,7 +29,10 @@ export const movieFormInfo = [
 ];
 
 export const store = writable({
-	openForm: false
+	openForm: false,
+	isProcessing: false,
+	movie: '',
+	movies: Promise.resolve([] as Movie[])
 });
 
 export const mapFetchedMovieToType = (fetchedMovie: Document): Movie => {
@@ -56,28 +59,31 @@ export const mapFetchedGenreToType = (fetchedGenre: Document): Genre => {
  * @param {string} b - The second string to compare.
  * @returns {boolean} - True if the strings are similar, false otherwise.
  */
-export const areStringsSimilar = (a: string, b: string): boolean => {
-	let lowerA = a.toLowerCase();
-	let lowerB = b.toLowerCase();
-
-	if (lowerA === lowerB) {
-		return true;
+export const areStringsSimilar = async (a: string, b: string): Promise<boolean> => {
+	try {
+		console.log('Fetching movies from api server')
+		const response: Response = await fetch(`${host}/api/validation`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				string1: a,
+				string2: b
+			})
+		});
+		if (response.ok) {
+			const result = await response.json()
+			console.log(`Are similar result: ${JSON.stringify(result)}`)
+			return result.responseText
+		} else {
+			throw error(response.status, `Failed to check similarity. Status: ${response.statusText}`);
+		}
+	} catch (err) {
+		throw error(400, `Error checking similarity: ${err}`);
 	}
+};
 
-	if (a.includes('-')) {
-		lowerA = lowerA.replaceAll('-', '')
-	}
-
-	if (b.includes('-')) {
-		lowerB = lowerB.replaceAll('-', '')
-	}
-
-	if (lowerA.includes(lowerB)) {
-		return true;
-	}
-	
-	return lowerB.length === 0;
-}
 
 export const fetchMovies = async (): Promise<Movie[]> => {
 	try {

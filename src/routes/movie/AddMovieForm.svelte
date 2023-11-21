@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { host, movieFormInfo, store } from '$lib';
 	import * as Form from '$lib/components/ui/form';
 	import { addSchema } from './schema';
@@ -16,19 +17,18 @@
 			toast.success(`Movie ${form.data.title} is now in the watch list`);
 			goto('/');
 		}
-
 		if (isValid != undefined && !isValid) {
-			toast.error(`Failed to add movie: ${errMsg}`);
+			toast.error(`Failed to add movie ${errMsg}`);
 		}
 	}
 
-	$: {
-		store.subscribe((state) => {
-			if(state.isProcessing) {
-				toast.loading(`Adding Movie ${form.data.title}`)
-			}
-		})
-	}
+	store.subscribe((state) => {
+		console.log(`State changes ${JSON.stringify(state)}`);
+		if (state.isProcessing) {
+			console.log(`Showing loading`);
+			toast.loading(`Adding Movie ${form.data.title}`);
+		}
+	});
 </script>
 
 <div in:scale>
@@ -73,9 +73,6 @@
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
-		<Form.Button
-			class="mt-2"
-			formaction="?/addMovie">{`Add to watch list`}</Form.Button
-		>
+		<Form.Button class="mt-2" formaction="?/addMovie">{`Add to watch list`}</Form.Button>
 	</Form.Root>
 </div>

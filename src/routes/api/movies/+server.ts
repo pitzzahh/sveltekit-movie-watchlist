@@ -3,38 +3,65 @@ import { mapFetchedMovieToType, mapFetchedGenreToType, areStringsSimilar, allowe
 import type { RequestHandler } from './$types';
 import type { Document, InsertOneResult, MongoServerError, UpdateResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
-import { updateSchema } from '../../movie/[id]/schema';
+import { modifySchema } from '../../movie/[id]/schema';
 import { superValidate } from 'sveltekit-superforms/server';
 
 export const GET: RequestHandler = async () => {
-	const movieDocuments: Document[] = await fetchDataFromMongoDB(movies);
-	const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc))
 
-	const finalMovies: Movie[] = await Promise.all(mappedMovies.map(async (m) => {
-		const movieGenres = m.genres ? await Promise.all(m.genres.map(async (genreId: string) => {
-			const genreDoc: Document = await getDocumentById(genres, genreId);
-			const genre: Genre = mapFetchedGenreToType(genreDoc);
-			return genre.name;
-		})) : [];
-		return { ...m, genres: movieGenres, _id: m._id };
-	}));
+	return fetchDataFromMongoDB(movies)
+		.then((movieDocuments: Document[]) =>
+			Promise.all(movieDocuments.map((document: Document) => mapFetchedMovieToType(document)).map(async (movie) => {
+				const movieGenres = movie.genres ? await Promise.all(movie.genres.map(async (genreId: string) => {
+					const genreDoc: Document = await getDocumentById(genres, genreId);
+					const genre: Genre = mapFetchedGenreToType(genreDoc);
+					return genre.name;
+				})) : [];
+				return { ...movie, genres: movieGenres, _id: movie._id };
+			})).then((movies: Movie[]) => {
+				if (!movies) {
+					return new Response(JSON.stringify(movies), {
+						status: 404,
+						headers: {
+							'Content-Type': 'application/json',
+							'Access-Control-Allow-Origin': '*',
+							'Access-Control-Allow-Methods': 'GET'
+						}
+					});
+				}
 
-	return new Response(JSON.stringify(finalMovies), {
-		status: 200,
-		headers: {
-			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET'
-		}
-	});
+				return new Response(JSON.stringify(movies), {
+					status: 200,
+					headers: {
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Methods': 'GET'
+					}
+				});
+			}).catch((err: MongoServerError) => {
+				return new Response(JSON.stringify({ errorMessage: err.message }), {
+					status: err.code ? Number(err.code) : 500,
+					headers: {
+						'Content-Type': 'application/json',
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Methods': 'GET'
+					}
+				});
+			})
+		).catch((err: MongoServerError) => {
+			return new Response(JSON.stringify({ errorMessage: err.message }), {
+				status: err.code ? Number(err.code) : 500,
+				headers: {
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'GET'
+				}
+			});
+		})
 };
 
 export const POST: RequestHandler = async ({ request }) => {
-
-	const requestBody = await request.json()
-
 	console.log('Adding new movie')
-	console.log(`Request body: ${JSON.stringify(requestBody)}`)
+	const requestBody = await request.json()
 	const data: MovieDTO = {
 		title: requestBody.title,
 		genres: requestBody.genres,
@@ -42,12 +69,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		rating: Number(requestBody.rating),
 		watched: false
 	}
-	console.log(`Movie DTO: ${JSON.stringify(data)}`)
-
 	return fetchDataFromMongoDB(movies)
 		.then((movieDocuments: Document[]) => {
 			const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc))
-			const res: Movie | undefined = mappedMovies.find((m) => areStringsSimilar(m.title, requestBody.title))
+			const res: Movie | undefined = mappedMovies.find(async (m) => await areStringsSimilar(m.title, requestBody.title))
 
 			if (res) {
 				return new Response(JSON.stringify({ errorMessage: `Movie ${res.title} already exists` }), {
@@ -60,7 +85,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				});
 			}
 
-			const genres:GenreDTO[] = data.genres.map((genre) => {
+			const genres: GenreDTO[] = data.genres.map((genre) => {
 				return {
 					name: genre
 				}
@@ -76,7 +101,6 @@ export const POST: RequestHandler = async ({ request }) => {
 							const isAcknowledged = res.acknowledged;
 							const insertedId = res.insertedId.toString();
 
-							console.log(`Inserted movie result: ${JSON.stringify(res)}`)
 							if (!isAcknowledged) {
 								return new Response(JSON.stringify({ errorMessage: `Failed to add movie ${data.title}` }), {
 									status: 400,
@@ -133,9 +157,8 @@ export const POST: RequestHandler = async ({ request }) => {
 }
 
 export const DELETE: RequestHandler = async ({ request }) => {
-
+	console.log('Deleting movie')
 	const requestBody = await request.json()
-	console.log(`Deleting movie, response: ${JSON.stringify(requestBody)}`)
 	const id = requestBody.id;
 	if (!id) {
 		return new Response(JSON.stringify({ errorMessage: 'No movie id specified' }), {
@@ -181,7 +204,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 					const movie: Movie | undefined = mapFetchedMovieToType(fetchedMovie);
 					return new Response(JSON.stringify({
 						deletedMovie: movie,
-						message: `Movie  ${movie.title} removed sucessfully`
+						message: `Movie ${movie.title} removed sucessfully`
 					}), {
 						status: 200,
 						headers: {
@@ -212,11 +235,6 @@ export const DELETE: RequestHandler = async ({ request }) => {
 
 export const PATCH: RequestHandler = async (event) => {
 
-	console.log('modifying movie data..');
-	const form = await superValidate(event, updateSchema, {
-		id: 'updateSchema'
-	});
-	console.log(`Request Headers: ${JSON.stringify(event.request.headers)}`)
 	const requestOrigin = event.request.headers.get('Origin');
 
 	if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
@@ -229,28 +247,17 @@ export const PATCH: RequestHandler = async (event) => {
 		});
 	}
 
-	console.log(`Is modified movie data valid: ${form.valid}`);
-	if (!form.valid) {
-		return new Response(JSON.stringify({ errorMesage: form.message }), {
-			status: 406,
-			headers: {
-				'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Methods': 'PATCH'
-			}
-		});
-	}
+	const requestBody = await event.request.json()
 
 	const genreArray: Genre[] = [];
 
-	const genreString: string[] = form.data.genres.split(' ');
+	const genreString: string[] = requestBody.genres.split(' ');
 	genreString.forEach((genre) => {
 		genreArray.push({
 			_id: '',
 			name: genre
 		});
 	});
-
-	const requestBody = await event.request.json()
 
 	const data: MovieDTO = {
 		title: requestBody.title,
@@ -261,22 +268,21 @@ export const PATCH: RequestHandler = async (event) => {
 	}
 
 	return getDocumentById(movies, requestBody.data._id)
-		.then(async (_fetchedMovie: Document) => {
-			const genreResult = await addGenres(genreArray);
-			return addGenres(genreArray)
-				.then(async(genresId: string[]) => {
+		.then((document: Document) =>
+			addGenres(genreArray)
+				.then(async (genresId: string[]) => {
 					data.genres = genresId
 					const result: UpdateResult<MovieDTO> = await movies.updateOne(
 						{ _id: new ObjectId(requestBody.data._id) },
 						{
 							$set: data
 						});
-	
+
 					const isAcknowledged = result.acknowledged;
 					const modifiedCount = result.modifiedCount;
 					const isUpdated = modifiedCount === 1;
 					const isValid = isAcknowledged && isUpdated;
-	
+
 					if (!isValid) {
 						return new Response(JSON.stringify({ errorMessage: `Request is ${isAcknowledged ? 'acknowledged' : 'not acknowledged'}, movie is ${isUpdated ? 'updated' : 'not updated'}  ` }), {
 							status: 400,
@@ -287,7 +293,6 @@ export const PATCH: RequestHandler = async (event) => {
 						});
 					}
 					return new Response(JSON.stringify({
-						form,
 						movie: data,
 						message: 'Movie updated'
 					}), {
@@ -307,5 +312,5 @@ export const PATCH: RequestHandler = async (event) => {
 						}
 					});
 				})
-		});
+		);
 }
