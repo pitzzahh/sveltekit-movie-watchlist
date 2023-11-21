@@ -21,9 +21,9 @@ export const load = (async (event: RequestEvent) => {
 			const movieGenres: string[] = movie.genres
 				? await Promise.all(
 						movie.genres.map(async (genreId: string) => {
-							const genreDoc: Document = await getDocumentById(genres, genreId);
-							const genre = mapFetchedGenreToType(genreDoc);
-							return genre.name;
+							return getDocumentById(genres, genreId)
+								.then((genreDoc: Document) => mapFetchedGenreToType(genreDoc).name)
+								.catch(() => 'NotFound');
 						})
 				  )
 				: [];
@@ -40,7 +40,7 @@ export const load = (async (event: RequestEvent) => {
 			};
 		})
 		.catch((e: MongoServerError) => {
-			throw error(404, 'Not Found')
+			throw error(404, 'Not Found');
 		});
 }) satisfies PageServerLoad;
 

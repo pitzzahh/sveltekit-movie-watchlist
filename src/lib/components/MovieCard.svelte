@@ -26,7 +26,8 @@
 					reject(res.errorMessage);
 				}
 			} catch (error: any) {
-				reject(error.name);
+				console.error('Error deleting movie')
+				reject(error.errorMessage);
 			}
 		});
 	}
@@ -37,7 +38,7 @@
 		<Card.Title class="font-bold text-xl">{movie.title}</Card.Title>
 		<div class="flex overflow-y-auto scrollbar-hide gap-1">
 			{#each movie.genres as genre}
-				<Card.Description><Badge>{genre}</Badge></Card.Description>
+				<Badge>{genre}</Badge>
 			{/each}
 		</div>
 	</Card.Header>

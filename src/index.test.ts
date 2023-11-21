@@ -1,4 +1,4 @@
-import { areStringsSimilar } from '$lib';
+import { areStringsSimilar as checkSimilarity, toPascalCase } from '$lib';
 import { describe, it, expect } from 'vitest';
 
 describe('sum test', () => {
@@ -8,37 +8,100 @@ describe('sum test', () => {
 });
 
 describe('similarity-test', () => {
-	it('check if ScienceFiction is similar to Science Fiction', async () => {
-		const firstString = 'ScienceFiction'
-		const secondString = 'Science Fiction'
-		const response = areStringsSimilar(firstString, secondString)
-		expect(response).toBe(true);
+	const firstString = 'ScienceFiction';
+	const secondString = 'Science Fiction';
+	const expected = true;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString, true);
+		expect(response).toBe(expected);
 	});
 });
 
 describe('similarity-test', () => {
-	it('check if Comedy is similar to RomaticComedy', async () => {
-		const firstString = 'ScienceFiction'
-		const secondString = 'Science Fiction'
-		const response = areStringsSimilar(firstString, secondString)
-		expect(response).toBe(false);
+	const firstString = 'Comedy';
+	const secondString = 'RomaticComedy';
+	const expected = false;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString, true);
+		expect(response).toBe(expected);
 	});
 });
 
 describe('similarity-test', () => {
-	it('check if ScienceFiction is similar to Science-Fiction', async () => {
-		const firstString = 'ScienceFiction'
-		const secondString = 'Science-Fiction'
-		const response = areStringsSimilar(firstString, secondString)
-		expect(response).toBe(true);
+	const firstString = 'ScienceFiction';
+	const secondString = 'Science-Fiction';
+	const expected = true;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString, true);
+		expect(response).toBe(expected);
 	});
 });
 
 describe('similarity-test', () => {
-	it('check if Great movie similar to Test Movie 5', async () => {
-		const firstString = ' Great Movie'
-		const secondString = 'Test Movie 5'
-		const response = areStringsSimilar(secondString, firstString)
-		expect(response).toBe(false);
+	const firstString = 'ScienceFiction';
+	const secondString = 'Action';
+	const expected = false;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString, true);
+		expect(response).toBe(expected);
 	});
+});
+
+describe('similarity-test', () => {
+	const firstString = 'Action';
+	const secondString = 'Romance';
+	const expected = false;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString, true);
+		expect(response).toBe(expected);
+	});
+});
+
+describe('similarity-test', () => {
+	const firstString = 'Great Movie';
+	const secondString = 'Test Movie 5';
+	const expected = false;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString);
+		expect(response).toBe(expected);
+	});
+});
+
+describe('similarity-test', () => {
+	const firstString = 'Loki Season 1';
+	const secondString = 'Loki Season 2';
+	const expected = false;
+	it(`check if ${firstString} is ${
+		expected ? 'similar' : 'not similar'
+	} to ${secondString}`, async () => {
+		const response = checkSimilarity(firstString, secondString);
+		expect(response).toBe(expected);
+	});
+});
+
+describe('pascal-case-test', () => {
+	it("check if 'action' is converted to pascal case 'Action'", async () =>
+		expect(toPascalCase('action')).toBe('Action'));
+});
+
+describe('pascal-case-test', () => {
+	it("check if 'fantasy' is converted to pascal case 'Fantasy'", async () =>
+		expect(toPascalCase('fantasy')).toBe('Fantasy'));
+});
+
+describe('pascal-case-test', () => {
+	it("check if 'romantic-comedy' is converted to pascal case 'RomanticComedy'", async () =>
+		expect(toPascalCase('romantic-comedy')).toBe('RomanticComedy'));
 });

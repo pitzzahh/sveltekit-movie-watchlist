@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
-	import { host, movieFormInfo, store } from '$lib';
+	import { movieFormInfo, store } from '$lib';
 	import * as Form from '$lib/components/ui/form';
 	import { addSchema } from './schema';
 	import { toast } from 'svelte-sonner';
