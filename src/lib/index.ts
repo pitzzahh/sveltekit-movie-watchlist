@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import type { Document } from "mongodb";
 import { writable } from "svelte/store";
 
-const dev = true;
+const dev = false;
 
 export const movieFormInfo = [
 	{
@@ -104,6 +104,6 @@ export const fetchMovies = async (): Promise<Movie[]> => {
 	}
 };
 
-export const host = dev ? 'http://localhost:5173' : 'https://sveltekit-movie-watchlist.vercel.app'
+export const host = dev ? 'https://fuzzy-space-couscous-jprqjx649xwfpw5w-5173.app.github.dev' : 'https://sveltekit-movie-watchlist.vercel.app'
 
-export const allowedOrigins = ['http://localhost:5173', 'https://sveltekit-movie-watchlist.vercel.app'];
+export const allowedOrigins = ['https://fuzzy-space-couscous-jprqjx649xwfpw5w-5173.app.github.dev', 'https://sveltekit-movie-watchlist.vercel.app'];
