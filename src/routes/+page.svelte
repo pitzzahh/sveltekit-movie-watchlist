@@ -12,11 +12,10 @@
 	import { fetchMovies, host, store } from '$lib';
 	import { userPrefersMode } from 'mode-watcher';
 
-	// export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
-	// export let pageDescription =
-	// 	'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
-	// export let pageUrl = host;
-	// export let photoUrl = host
+	export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
+	export let pageDescription =
+		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
+	export let pageUrl = host;
 	onMount(() => {
 		try {
 			return store.update((state) => ({
@@ -29,7 +28,7 @@
 	});
 </script>
 
-<!-- <svelte:head>
+<svelte:head>
 	<title>{pageTitle}</title>
 	<meta name="description" content={pageDescription} />
 	<meta name="author" content="Peter John Arao" />
@@ -44,14 +43,14 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta property="og:description" content={pageDescription} />
-	<meta property="og:url" content="{photoUrl}/" />
+	<meta property="og:url" content="{pageUrl}/" />
 	<meta
 		property="og:image"
-		content={$userPrefersMode === 'dark' ? photoUrl + 'thumbnail-dark.png' : 'thumbnail-light.png'}
+		content={$userPrefersMode === 'dark' ? 'thumbnail-dark.png' : 'thumbnail-light.png'}
 	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
-</svelte:head> -->
+</svelte:head>
 
 <div in:fade>
 	{#await $store.movies}
