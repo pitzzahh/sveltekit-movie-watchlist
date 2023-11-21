@@ -16,7 +16,6 @@
 	export let pageDescription =
 		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
 	export let pageUrl = host;
-	export let photoUrl = host
 	onMount(() => {
 		try {
 			return store.update((state) => ({
@@ -44,10 +43,10 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta property="og:description" content={pageDescription} />
-	<meta property="og:url" content="{photoUrl}/" />
+	<meta property="og:url" content="{pageUrl}/" />
 	<meta
 		property="og:image"
-		content={$userPrefersMode === 'dark' ? photoUrl + 'thumbnail-dark.png' : 'thumbnail-light.png'}
+		content={$userPrefersMode === 'dark' ? 'thumbnail-dark.png' : 'thumbnail-light.png'}
 	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
