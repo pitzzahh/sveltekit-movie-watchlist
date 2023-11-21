@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 	import { Sun, Moon, Clapperboard } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';

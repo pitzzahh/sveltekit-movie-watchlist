@@ -7,21 +7,51 @@
 	import * as Alert from '$lib/components/ui/alert';
 	import { fade } from 'svelte/transition';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { fetchMovies, store } from '$lib';
+	import { fetchMovies, host, store } from '$lib';
+	import { userPrefersMode } from 'mode-watcher';
 
-	onMount( () => {
+	// export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
+	// export let pageDescription =
+	// 	'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
+	// export let pageUrl = host;
+	// export let photoUrl = host
+	onMount(() => {
 		try {
 			return store.update((state) => ({
 				...state,
 				movies: fetchMovies()
 			}));
 		} catch (err) {
-			throw error(500, `${JSON.stringify(err)}`)
+			throw error(500, `${JSON.stringify(err)}`);
 		}
 	});
 </script>
+
+<!-- <svelte:head>
+	<title>{pageTitle}</title>
+	<meta name="description" content={pageDescription} />
+	<meta name="author" content="Peter John Arao" />
+	<meta
+		name="keywords"
+		content="SvelteKit Movie watchlist, movie watch list"
+	/>
+	<meta name="robots" content="index, follow" />
+	<link rel="canonical" href="{pageUrl}/" />
+	<meta http-equiv="Content-Language" content="en" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+	<meta property="og:description" content={pageDescription} />
+	<meta property="og:url" content="{photoUrl}/" />
+	<meta
+		property="og:image"
+		content={$userPrefersMode === 'dark' ? photoUrl + 'thumbnail-dark.png' : 'thumbnail-light.png'}
+	/>
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content={pageTitle} />
+</svelte:head> -->
 
 <div in:fade>
 	{#await $store.movies}

@@ -5,10 +5,8 @@ import {
 	type Collection,
 	type FindCursor,
 	type Document,
-	type InsertManyResult,
 	type InsertOneResult,
 	ObjectId,
-	type WithId,
 	MongoServerError
 } from 'mongodb';
 
@@ -52,9 +50,7 @@ export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 				);
 
 				for (const gData of genresData) {
-					const foundGenre: Genre | undefined = mappedGenres.find(
-						async (g) => await areStringsSimilar(g.name, gData.name)
-					);
+					const foundGenre: Genre | undefined = mappedGenres.find((g) => areStringsSimilar(gData.name, g.name, true));
 					console.log(`Similar Genre: ${JSON.stringify(foundGenre)}`);
 
 					if (foundGenre) {

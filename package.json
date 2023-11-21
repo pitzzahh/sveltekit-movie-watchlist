@@ -15,6 +15,7 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.27.4",
+		"@types/string-similarity": "^4.0.2",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"autoprefixer": "^10.4.14",
@@ -43,6 +44,7 @@
 		"lucide-svelte": "^0.292.0",
 		"mode-watcher": "^0.1.1",
 		"mongodb": "^6.2.0",
+		"string-similarity": "^4.0.4",
 		"svelte-sonner": "^0.3.3",
 		"sveltekit-superforms": "^1.10.2",
 		"tailwind-merge": "^2.0.0",

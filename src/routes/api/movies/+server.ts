@@ -10,8 +10,10 @@ import {
 	mapFetchedMovieToType,
 	mapFetchedGenreToType,
 	areStringsSimilar,
-	allowedOrigins
+	allowedOrigins,
+	toPascalCase
 } from '$lib';
+
 import type { RequestHandler } from './$types';
 import type { Document, InsertOneResult, MongoServerError, UpdateResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
@@ -26,9 +28,9 @@ export const GET: RequestHandler = async () => {
 						const movieGenres = movie.genres
 							? await Promise.all(
 									movie.genres.map(async (genreId: string) => {
-										const genreDoc: Document = await getDocumentById(genres, genreId);
-										const genre: Genre = mapFetchedGenreToType(genreDoc);
-										return genre.name;
+										return getDocumentById(genres, genreId)
+											.then((genreDoc: Document) => mapFetchedGenreToType(genreDoc).name)
+											.catch(() => 'NotFound');
 									})
 							  )
 							: [];
@@ -116,7 +118,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 			const genres: GenreDTO[] = data.genres.map((genre) => {
 				return {
-					name: genre
+					name: toPascalCase(genre)
 				};
 			});
 
@@ -194,10 +196,104 @@ export const POST: RequestHandler = async ({ request }) => {
 
 export const DELETE: RequestHandler = async ({ request }) => {
 	console.log('Deleting movie');
-	const requestBody = await request.json();
-	const id = requestBody.id;
-	if (!id) {
-		return new Response(JSON.stringify({ errorMessage: 'No movie id specified' }), {
+	try {
+		const requestBody = await request.json();
+		const id = requestBody.id;
+		if (!id) {
+			return new Response(JSON.stringify({ errorMessage: 'No movie id specified' }), {
+				status: 404,
+				headers: {
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'DELETE'
+				}
+			});
+		}
+		return getDocumentById(movies, id)
+			.then((fetchedMovie: Document) => {
+				if (!fetchedMovie) {
+					return new Response(
+						JSON.stringify({ errorMesage: `Movie with id ${id} is not a movie document!` }),
+						{
+							status: 400,
+							headers: {
+								'Access-Control-Allow-Origin': '*',
+								'Access-Control-Allow-Methods': 'DELETE'
+							}
+						}
+					);
+				}
+
+				return movies
+					.deleteOne({ _id: new ObjectId(id) })
+					.then((response: Document) => {
+						const isAcknowledged = response.acknowledged;
+						const deleteCount = response.deletedCount;
+						const isDeleted = deleteCount === 1;
+						const isValid = isAcknowledged && isDeleted;
+
+						console.log(`is acknowledged: ${response.acknowledged}`);
+						console.log(`Delete count: ${deleteCount}`);
+
+						if (!isValid) {
+							return new Response(
+								JSON.stringify({
+									errorMessage: `Request is ${
+										isAcknowledged ? 'acknowledged' : 'not acknowledged'
+									}, movie is ${isDeleted ? 'deleted' : 'not deleted'}  `
+								}),
+								{
+									status: 400,
+									headers: {
+										'Access-Control-Allow-Origin': '*',
+										'Access-Control-Allow-Methods': 'DELETE'
+									}
+								}
+							);
+						}
+
+						const movie: Movie | undefined = mapFetchedMovieToType(fetchedMovie);
+						return new Response(
+							JSON.stringify({
+								deletedMovie: movie,
+								message: `Movie ${movie.title} removed sucessfully`
+							}),
+							{
+								status: 200,
+								headers: {
+									'Content-Type': 'application/json',
+									'Access-Control-Allow-Origin': '*',
+									'Access-Control-Allow-Methods': 'DELETE'
+								}
+							}
+						);
+					})
+					.catch((error: MongoServerError) => {
+						return new Response(JSON.stringify({ errorMesage: error.message }), {
+							status: 500,
+							headers: {
+								'Access-Control-Allow-Origin': '*',
+								'Access-Control-Allow-Methods': 'DELETE'
+							}
+						});
+					});
+			})
+			.catch(
+				() =>
+					new Response(
+						JSON.stringify({
+							errorMesage: `Cannot delete movie, movie with id ${id} does not exist`
+						}),
+						{
+							status: 404,
+							headers: {
+								'Access-Control-Allow-Origin': '*',
+								'Access-Control-Allow-Methods': 'DELETE'
+							}
+						}
+					)
+			);
+	} catch {
+		return new Response(JSON.stringify({ errorMesage: 'Cannot delete movie, invalid body' }), {
 			status: 404,
 			headers: {
 				'Access-Control-Allow-Origin': '*',
@@ -205,87 +301,6 @@ export const DELETE: RequestHandler = async ({ request }) => {
 			}
 		});
 	}
-	return getDocumentById(movies, id)
-		.then((fetchedMovie: Document) => {
-			if (!fetchedMovie) {
-				return new Response(
-					JSON.stringify({ errorMesage: `Movie with id ${id} is not a movie document!` }),
-					{
-						status: 400,
-						headers: {
-							'Access-Control-Allow-Origin': '*',
-							'Access-Control-Allow-Methods': 'DELETE'
-						}
-					}
-				);
-			}
-
-			return movies
-				.deleteOne({ _id: new ObjectId(id) })
-				.then((response: Document) => {
-					const isAcknowledged = response.acknowledged;
-					const deleteCount = response.deletedCount;
-					const isDeleted = deleteCount === 1;
-					const isValid = isAcknowledged && isDeleted;
-
-					console.log(`is acknowledged: ${response.acknowledged}`);
-					console.log(`Delete count: ${deleteCount}`);
-
-					if (!isValid) {
-						return new Response(
-							JSON.stringify({
-								errorMessage: `Request is ${
-									isAcknowledged ? 'acknowledged' : 'not acknowledged'
-								}, movie is ${isDeleted ? 'deleted' : 'not deleted'}  `
-							}),
-							{
-								status: 400,
-								headers: {
-									'Access-Control-Allow-Origin': '*',
-									'Access-Control-Allow-Methods': 'DELETE'
-								}
-							}
-						);
-					}
-
-					const movie: Movie | undefined = mapFetchedMovieToType(fetchedMovie);
-					return new Response(
-						JSON.stringify({
-							deletedMovie: movie,
-							message: `Movie ${movie.title} removed sucessfully`
-						}),
-						{
-							status: 200,
-							headers: {
-								'Content-Type': 'application/json',
-								'Access-Control-Allow-Origin': '*',
-								'Access-Control-Allow-Methods': 'DELETE'
-							}
-						}
-					);
-				})
-				.catch((error: MongoServerError) => {
-					return new Response(JSON.stringify({ errorMesage: error.message }), {
-						status: 500,
-						headers: {
-							'Access-Control-Allow-Origin': '*',
-							'Access-Control-Allow-Methods': 'DELETE'
-						}
-					});
-				});
-		})
-		.catch((error: MongoServerError) => {
-			return new Response(
-				JSON.stringify({ errorMesage: 'Cannot delete movie, it does not exist' }),
-				{
-					status: 404,
-					headers: {
-						'Access-Control-Allow-Origin': '*',
-						'Access-Control-Allow-Methods': 'DELETE'
-					}
-				}
-			);
-		});
 };
 
 export const PATCH: RequestHandler = async (event) => {
