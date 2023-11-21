@@ -101,14 +101,17 @@ export const POST: RequestHandler = async ({ request }) => {
 			);
 			console.log(`Movie that is found similar: ${JSON.stringify(res)}`);
 			if (res) {
-				return new Response(JSON.stringify({ errorMessage: `Movie ${data.title} already exists` }), {
-					status: 409,
-					headers: {
-						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
-						'Access-Control-Allow-Methods': 'POST'
+				return new Response(
+					JSON.stringify({ errorMessage: `Movie ${data.title} already exists` }),
+					{
+						status: 409,
+						headers: {
+							'Content-Type': 'application/json',
+							'Access-Control-Allow-Origin': '*',
+							'Access-Control-Allow-Methods': 'POST'
+						}
 					}
-				});
+				);
 			}
 
 			const genres: GenreDTO[] = data.genres.map((genre) => {
