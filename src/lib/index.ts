@@ -3,7 +3,7 @@ import type { Document } from 'mongodb';
 import { writable } from 'svelte/store';
 import s from 'string-similarity';
 
-const dev = false;
+const dev = true;
 
 export const movieFormInfo = [
 	{
@@ -136,10 +136,5 @@ export const fetchMovies = async (): Promise<Movie[]> => {
 };
 
 export const host: string = dev
-	? 'https://fuzzy-space-couscous-jprqjx649xwfpw5w-5173.app.github.dev'
+	? 'https://orange-space-rotary-phone-jprqjx649xr3pqj5-5173.app.github.dev'
 	: 'https://sveltekit-movie-watchlist.vercel.app';
-
-export const allowedOrigins: string[] = [
-	'https://fuzzy-space-couscous-jprqjx649xwfpw5w-5173.app.github.dev',
-	'https://sveltekit-movie-watchlist.vercel.app'
-];
