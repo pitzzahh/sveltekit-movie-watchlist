@@ -27,7 +27,7 @@
 	}
 </script>
 
-<div in:scale class="mt-10">
+<div in:scale class="mt-5">
 	<div class="flex flex-col items-center md:items-left mb-5">
 		<p class="text-2xl font-bold">{isModifying ? 'Update Movie' : 'Add Movie'}</p>
 		<p class="text-xl font-semi-bold">
