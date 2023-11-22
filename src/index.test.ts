@@ -92,16 +92,44 @@ describe('similarity-test', () => {
 });
 
 describe('pascal-case-test', () => {
-	it("check if 'action' is converted to pascal case 'Action'", async () =>
-		expect(toPascalCase('action')).toBe('Action'));
+	const firstString = 'action';
+	const expected = 'Action';
+	it(`check if ${firstString} is converted to pascal case ${expected}`, async () =>
+		expect(toPascalCase(firstString)).toBe(expected));
 });
 
 describe('pascal-case-test', () => {
-	it("check if 'fantasy' is converted to pascal case 'Fantasy'", async () =>
-		expect(toPascalCase('fantasy')).toBe('Fantasy'));
+	const firstString = 'fantasy';
+	const expected = 'Fantasy';
+	it(`check if ${firstString} is converted to pascal case ${expected}`, async () =>
+		expect(toPascalCase(firstString)).toBe(expected));
 });
 
 describe('pascal-case-test', () => {
-	it("check if 'romantic-comedy' is converted to pascal case 'RomanticComedy'", async () =>
-		expect(toPascalCase('romantic-comedy')).toBe('RomanticComedy'));
+	const firstString = 'romantic-comedy';
+	const expected = 'RomanticComedy';
+	it(`check if ${firstString} is converted to pascal case ${expected}`, async () =>
+		expect(toPascalCase(firstString)).toBe(expected));
 });
+
+describe('pascal-case-test', () => {
+	const firstString = 'romantic comedy';
+	const expected = 'RomanticComedy';
+	it(`check if ${firstString} is converted to pascal case ${expected}`, async () =>
+		expect(toPascalCase(firstString)).toBe(expected));
+});
+
+describe('pascal-case-test', () => {
+	const firstString = 'romantic_comedy';
+	const expected = 'RomanticComedy';
+	it(`check if ${firstString} is converted to pascal case ${expected}`, async () =>
+		expect(toPascalCase(firstString)).toBe(expected));
+});
+
+describe('pascal-case-test', () => {
+	const firstString = 'RomanticComedy';
+	const expected = 'RomanticComedy';
+	it(`check if ${firstString} is converted to pascal case ${expected}`, async () =>
+		expect(toPascalCase(firstString)).toBe(expected));
+});
+
