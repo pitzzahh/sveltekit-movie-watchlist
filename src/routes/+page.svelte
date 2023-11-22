@@ -31,13 +31,13 @@
 	<meta name="author" content="Peter John Arao" />
 	<meta name="keywords" content="SvelteKit Movie watchlist, movie watch list" />
 	<meta name="robots" content="index, follow" />
-	<link rel="canonical" href="{pageUrl}/" />
+	<link rel="canonical" href={pageUrl} />
 	<meta http-equiv="Content-Language" content="en" />
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta property="og:description" content={pageDescription} />
-	<meta property="og:url" content="{pageUrl}/" />
+	<meta property="og:url" content={pageUrl} />
 	<meta property="og:image" content="thumbnail.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
