@@ -10,7 +10,6 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { fetchMovies, host, store } from '$lib';
-	import { userPrefersMode } from 'mode-watcher';
 
 	export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
 	export let pageDescription =
@@ -32,10 +31,7 @@
 	<title>{pageTitle}</title>
 	<meta name="description" content={pageDescription} />
 	<meta name="author" content="Peter John Arao" />
-	<meta
-		name="keywords"
-		content="SvelteKit Movie watchlist, movie watch list"
-	/>
+	<meta name="keywords" content="SvelteKit Movie watchlist, movie watch list" />
 	<meta name="robots" content="index, follow" />
 	<link rel="canonical" href="{pageUrl}/" />
 	<meta http-equiv="Content-Language" content="en" />
@@ -44,10 +40,7 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta property="og:description" content={pageDescription} />
 	<meta property="og:url" content="{pageUrl}/" />
-	<meta
-		property="og:image"
-		content={$userPrefersMode === 'dark' ? 'thumbnail-dark.png' : 'thumbnail-light.png'}
-	/>
+	<meta property="og:image" content="thumbnail-dark.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
 </svelte:head>
