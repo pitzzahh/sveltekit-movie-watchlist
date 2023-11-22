@@ -2,14 +2,13 @@
 	import MovieCard from '../lib/components/MovieCard.svelte';
 	import Error from '../lib/components/Error.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { error } from '@sveltejs/kit';
 	import { Film } from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import { fade } from 'svelte/transition';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { fetchMovies, host, store } from '$lib';
+	import { host, store } from '$lib';
 	import type { PageData } from './$types';
 
 	export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
