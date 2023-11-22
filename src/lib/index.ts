@@ -3,7 +3,7 @@ import type { Document } from 'mongodb';
 import { writable } from 'svelte/store';
 import s from 'string-similarity';
 
-const dev = false;
+const dev = true;
 
 export const movieFormInfo = [
 	{
@@ -53,18 +53,20 @@ export const mapFetchedGenreToType = (fetchedGenre: Document): Genre => {
 	};
 };
 
+const pascalCache: any = {};
 /**
- * Formats a string to Pascal case
+ * Formats a string to Pascal case. From https://stackoverflow.com/a/73876341
  * @param {string} inputString - The input string to be formatted.
  * @returns {string} - The formatted string.
  */
-export const toPascalCase = (inputString: string): string => {
-	return `${inputString}`
-		.toLowerCase()
-		.replace(new RegExp(/[-_]+/, 'g'), ' ')
-		.replace(new RegExp(/[^\w\s]/, 'g'), '')
-		.replace(new RegExp(/\s+(.)(\w*)/, 'g'), (_$1, $2, $3) => `${$2.toUpperCase() + $3}`)
-		.replace(new RegExp(/\w/), (s) => s.toUpperCase());
+export const toPascalCase = (str: string): string => {
+	pascalCache[str] =
+		pascalCache[str] ||
+		(/^[\p{L}\d]+$/iu.test(str) && str.charAt(0).toUpperCase() + str.slice(1)) ||
+		str
+			.replace(/([\p{L}\d])([\p{L}\d]*)/giu, (_g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase())
+			.replace(/[^\p{L}\d]/giu, '');
+	return pascalCache[str];
 };
 
 /**
