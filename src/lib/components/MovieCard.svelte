@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { host, fetchMovies, store } from '$lib';
@@ -11,7 +11,7 @@
 	async function deleteMovie(): Promise<any> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				console.log(`Deleting movie with title: ${movie.title}`)
+				console.log(`Deleting movie with title: ${movie.title}`);
 				const response: Response = await fetch(`${host}/api/movies`, {
 					method: 'DELETE',
 					headers: {
@@ -27,7 +27,7 @@
 					reject(res.errorMessage);
 				}
 			} catch (error: any) {
-				console.error('Error deleting movie')
+				console.error('Error deleting movie');
 				reject(error.errorMessage);
 			}
 		});
