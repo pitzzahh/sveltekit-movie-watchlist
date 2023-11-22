@@ -27,7 +27,7 @@
 	}
 </script>
 
-<div in:scale>
+<div in:scale class="mt-10">
 	<div class="flex flex-col items-center md:items-left mb-5">
 		<p class="text-2xl font-bold">{isModifying ? 'Update Movie' : 'Add Movie'}</p>
 		<p class="text-xl font-semi-bold">
@@ -78,6 +78,12 @@
 					</Form.SelectContent>
 				</Form.Select>
 				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+		<Form.Field {config} name="watched">
+			<Form.Item class="flex flex-row items-center justify-between rounded-lg">
+				<Form.Label>Have you watched this movie?</Form.Label>
+				<Form.Switch />
 			</Form.Item>
 		</Form.Field>
 		<Tooltip.Root>
