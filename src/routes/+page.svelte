@@ -16,8 +16,14 @@
 	export let pageDescription =
 		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
 	export let pageUrl = host;
-
 	export let data: PageData;
+
+	onMount(() => {
+		store.update((state) => ({
+			...state,
+			movies: data.streamed.movies
+		}));
+	});
 </script>
 
 <svelte:head>
@@ -39,7 +45,7 @@
 </svelte:head>
 
 <div in:fade>
-	{#await data.streamed.movies}
+	{#await $store.movies}
 		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
 			{#each Array.from({ length: 6 }, (_, index) => index + 1) as option (option)}
 				<Card.Root class="w-full">
