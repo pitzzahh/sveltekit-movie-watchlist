@@ -6,10 +6,9 @@ import { fetchMovies, host, mapFetchedGenreToType, mapFetchedMovieToType } from 
 import type { Document, MongoServerError } from 'mongodb';
 import { modifySchema } from './schema';
 
-/** @type {import('./$types').EntryGenerator} */
-export async function entries() {
-	return (await fetchMovies()).map((movie) => ({ id: movie._id }));
-}
+export const entries = async () => {
+	return (await fetchMovies()).map((movie: Movie) => ({ id: movie._id }));
+};
 
 export const load = (async (event: RequestEvent) => {
 	console.log(`Loading movie with id: ${event.params.id}`);
@@ -46,7 +45,7 @@ export const load = (async (event: RequestEvent) => {
 				form: form
 			};
 		})
-		.catch((e: MongoServerError) => {
+		.catch((_e: MongoServerError) => {
 			throw error(404, 'Not Found');
 		});
 }) satisfies PageServerLoad;
@@ -64,14 +63,23 @@ export const actions: Actions = {
 			});
 		}
 
+		if (!event.params.id) {
+			return fail(400, {
+				form,
+				valid: false,
+				errorMessage: 'No id provided'
+			});
+		}
+
 		const genres: string[] = form.data.genres.split(' ').map((genre) => genre);
 
-		let data: MovieDTO = {
+		let data: Movie = {
+			_id: event.params.id,
 			title: form.data.title,
 			genres,
 			year: Number(form.data.year),
 			rating: Number(form.data.rating),
-			watched: false
+			watched: form.data.watched
 		};
 
 		console.log(`Movie to be updated:${JSON.stringify(data)}`);
@@ -85,11 +93,11 @@ export const actions: Actions = {
 				body: JSON.stringify(data)
 			});
 			const res = await response.json();
-
 			return {
 				form,
 				result: res,
 				valid: response.ok,
+				message: res.message,
 				errorMessage: res.errorMessage
 			};
 		} catch (error: any) {

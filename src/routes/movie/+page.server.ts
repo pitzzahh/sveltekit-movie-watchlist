@@ -34,7 +34,7 @@ export const actions: Actions = {
 			genres,
 			year: Number(form.data.year),
 			rating: Number(form.data.rating),
-			watched: false
+			watched: form.data.watched
 		}
 
 		console.log(`Movie to be added:${JSON.stringify(data)}`)
@@ -51,9 +51,10 @@ export const actions: Actions = {
 
 			return {
 				form,
-				result: res,
 				movie: undefined,
+				result: res,
 				valid: response.ok,
+				message: res.message,
 				errorMessage: res.errorMessage
 			};
 

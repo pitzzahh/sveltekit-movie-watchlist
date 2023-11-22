@@ -12,11 +12,12 @@
 	export let movie: Movie | undefined;
 	export let form: SuperValidated<any>;
 	export let errMsg: string = '';
+	export let message: string = isModifying ? 'Movie updated sucessfully' : 'Movie added successfully'
 	export let isValid: boolean | undefined = undefined;
 
 	$: {
 		if (isValid) {
-			toast.success(isModifying ? `Movie is now updated` : `Movie added to watch list`);
+			toast.success(message);
 			goto('/');
 		}
 		if (isValid != undefined && !isValid) {
@@ -27,7 +28,7 @@
 	}
 </script>
 
-<div in:scale class="mt-10">
+<div in:scale class="mt-4">
 	<div class="flex flex-col items-center md:items-left mb-5">
 		<p class="text-2xl font-bold">{isModifying ? 'Update Movie' : 'Add Movie'}</p>
 		<p class="text-xl font-semi-bold">

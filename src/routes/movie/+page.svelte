@@ -10,4 +10,5 @@
 	form={data.form} 
 	isValid={form?.valid} 
 	errMsg={form?.errorMessage}
+	message={form?.message}
 />

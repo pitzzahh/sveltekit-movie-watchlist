@@ -18,7 +18,24 @@ import type { RequestHandler } from './$types';
 import type { Document, InsertOneResult, MongoServerError, UpdateResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ request }) => {
+	console.log('GET request to api/movies');
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
+
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
+		return new Response(
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
+			{
+				status: 401,
+				headers: {
+					'Access-Control-Allow-Origin': requestOrigin,
+					'Access-Control-Allow-Methods': 'GET'
+				}
+			}
+		);
+	}
 	return fetchDataFromMongoDB(movies)
 		.then((movieDocuments: Document[]) =>
 			Promise.all(
@@ -82,14 +99,31 @@ export const GET: RequestHandler = async () => {
 };
 
 export const POST: RequestHandler = async ({ request }) => {
-	console.log('Adding new movie');
+	console.log('POST request to api/movies');
+
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
+
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
+		return new Response(
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
+			{
+				status: 401,
+				headers: {
+					'Access-Control-Allow-Origin': requestOrigin,
+					'Access-Control-Allow-Methods': 'POST'
+				}
+			}
+		);
+	}
 	const requestBody = await request.json();
 	const data: MovieDTO = {
 		title: requestBody.title,
 		genres: requestBody.genres,
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
-		watched: false
+		watched: requestBody.watched
 	};
 
 	console.log(`POST Request body in api/movies: ${JSON.stringify(requestBody)}`);
@@ -195,7 +229,25 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const DELETE: RequestHandler = async ({ request }) => {
-	console.log('Deleting movie');
+	console.log('DELETE request to api/movies');
+
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
+
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
+		return new Response(
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
+			{
+				status: 401,
+				headers: {
+					'Access-Control-Allow-Origin': requestOrigin,
+					'Access-Control-Allow-Methods': 'DELETE'
+				}
+			}
+		);
+	}
+
 	try {
 		const requestBody = await request.json();
 		const id = requestBody.id;
@@ -303,10 +355,13 @@ export const DELETE: RequestHandler = async ({ request }) => {
 	}
 };
 
-export const PATCH: RequestHandler = async (event) => {
-	const requestOrigin = event.request.headers.get('Origin');
+export const PATCH: RequestHandler = async ({ request }) => {
+	console.log('PATCH request to api/movies');
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
 
-	if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
 		return new Response(
 			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
 			{
@@ -319,14 +374,13 @@ export const PATCH: RequestHandler = async (event) => {
 		);
 	}
 
-	const requestBody = await event.request.json();
+	const requestBody: Movie = await request.json();
 
-	const genreArray: Genre[] = [];
+	console.log(`Request body in PATH: ${JSON.stringify(requestBody)}`);
+	const genres: GenreDTO[] = [];
 
-	const genreString: string[] = requestBody.genres.split(' ');
-	genreString.forEach((genre) => {
-		genreArray.push({
-			_id: '',
+	requestBody.genres.forEach((genre: string) => {
+		genres.push({
 			name: genre
 		});
 	});
@@ -336,19 +390,27 @@ export const PATCH: RequestHandler = async (event) => {
 		genres: [],
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
-		watched: false
+		watched: requestBody.watched
 	};
 
-	return getDocumentById(movies, requestBody.data._id).then((document: Document) =>
-		addGenres(genreArray)
+	console.log(`Genres DTO: ${JSON.stringify(genres)}`);
+	return getDocumentById(movies, requestBody._id).then((document: Document) =>
+		addGenres(genres)
 			.then(async (genresId: string[]) => {
 				data.genres = genresId;
-				const result: UpdateResult<MovieDTO> = await movies.updateOne(
-					{ _id: new ObjectId(requestBody.data._id) },
-					{
-						$set: data
+				const filter = { _id: new ObjectId(requestBody._id) };
+
+				const update = {
+					$set: {
+						title: data.title,
+						genres: data.genres,
+						year: data.year,
+						rating: data.rating,
+						watched: data.watched
 					}
-				);
+				};
+				const oldMovie: Movie | undefined = mapFetchedMovieToType(document);
+				const result: UpdateResult<Movie> = await movies.updateOne(filter, update);
 
 				const isAcknowledged = result.acknowledged;
 				const modifiedCount = result.modifiedCount;
@@ -371,10 +433,11 @@ export const PATCH: RequestHandler = async (event) => {
 						}
 					);
 				}
+				const message = areStringsSimilar(oldMovie?.title, data.title) ? 'Movie updated sucessfully' : `Movie ${oldMovie?.title} updated to ${data.title}`
 				return new Response(
 					JSON.stringify({
 						movie: data,
-						message: 'Movie updated'
+						message
 					}),
 					{
 						status: 202,
@@ -388,7 +451,9 @@ export const PATCH: RequestHandler = async (event) => {
 			})
 			.catch((error: MongoServerError) => {
 				return new Response(
-					JSON.stringify({ errorMessage: `Failed to update movie ${data.title}: ${error.message}` }),
+					JSON.stringify({
+						errorMessage: `Failed to update movie ${data.title}: ${error.message}`
+					}),
 					{
 						status: 400,
 						headers: {

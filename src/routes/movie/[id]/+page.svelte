@@ -11,4 +11,5 @@
 	isValid={form?.valid} 
 	errMsg={form?.errorMessage} 
 	isModifying={true}
+	message={form?.message}
 />
