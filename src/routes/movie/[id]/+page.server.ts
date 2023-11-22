@@ -6,10 +6,9 @@ import { fetchMovies, host, mapFetchedGenreToType, mapFetchedMovieToType } from 
 import type { Document, MongoServerError } from 'mongodb';
 import { modifySchema } from './schema';
 
-/** @type {import('./$types').EntryGenerator} */
-export async function entries() {
-	return (await fetchMovies()).map((movie) => ({ id: movie._id }));
-}
+export const entries = async () => {
+	return (await fetchMovies()).map((movie: Movie) => ({ id: movie._id }));
+};
 
 export const load = (async (event: RequestEvent) => {
 	console.log(`Loading movie with id: ${event.params.id}`);
@@ -46,7 +45,7 @@ export const load = (async (event: RequestEvent) => {
 				form: form
 			};
 		})
-		.catch((e: MongoServerError) => {
+		.catch((_e: MongoServerError) => {
 			throw error(404, 'Not Found');
 		});
 }) satisfies PageServerLoad;
