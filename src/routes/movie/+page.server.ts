@@ -21,8 +21,7 @@ export const actions: Actions = {
 
 		if (!form.valid) {
 			return fail(400, {
-				form,
-				movie: undefined
+				form
 			});
 		}
 
@@ -34,7 +33,7 @@ export const actions: Actions = {
 			genres,
 			year: Number(form.data.year),
 			rating: Number(form.data.rating),
-			watched: false
+			watched: form.data.watched
 		}
 
 		console.log(`Movie to be added:${JSON.stringify(data)}`)
@@ -52,7 +51,6 @@ export const actions: Actions = {
 			return {
 				form,
 				result: res,
-				movie: undefined,
 				valid: response.ok,
 				errorMessage: res.errorMessage
 			};
@@ -60,7 +58,6 @@ export const actions: Actions = {
 		} catch (error: any) {
 			return {
 				form,
-				movie: undefined,
 				valid: false,
 				errorMessage: error.message
 			};
