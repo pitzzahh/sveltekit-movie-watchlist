@@ -21,7 +21,8 @@ export const actions: Actions = {
 
 		if (!form.valid) {
 			return fail(400, {
-				form
+				form,
+				movie: undefined
 			});
 		}
 
@@ -50,14 +51,17 @@ export const actions: Actions = {
 
 			return {
 				form,
+				movie: undefined,
 				result: res,
 				valid: response.ok,
+				message: res.message,
 				errorMessage: res.errorMessage
 			};
 
 		} catch (error: any) {
 			return {
 				form,
+				movie: undefined,
 				valid: false,
 				errorMessage: error.message
 			};
