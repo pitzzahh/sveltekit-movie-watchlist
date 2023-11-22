@@ -18,7 +18,24 @@ import type { RequestHandler } from './$types';
 import type { Document, InsertOneResult, MongoServerError, UpdateResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ request }) => {
+	console.log('GET request to api/movies');
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
+
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
+		return new Response(
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
+			{
+				status: 401,
+				headers: {
+					'Access-Control-Allow-Origin': requestOrigin,
+					'Access-Control-Allow-Methods': 'GET'
+				}
+			}
+		);
+	}
 	return fetchDataFromMongoDB(movies)
 		.then((movieDocuments: Document[]) =>
 			Promise.all(
@@ -82,14 +99,31 @@ export const GET: RequestHandler = async () => {
 };
 
 export const POST: RequestHandler = async ({ request }) => {
-	console.log('Adding new movie');
+	console.log('POST request to api/movies');
+
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
+
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
+		return new Response(
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
+			{
+				status: 401,
+				headers: {
+					'Access-Control-Allow-Origin': requestOrigin,
+					'Access-Control-Allow-Methods': 'POST'
+				}
+			}
+		);
+	}
 	const requestBody = await request.json();
 	const data: MovieDTO = {
 		title: requestBody.title,
 		genres: requestBody.genres,
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
-		watched: false
+		watched: requestBody.watched
 	};
 
 	console.log(`POST Request body in api/movies: ${JSON.stringify(requestBody)}`);
@@ -195,7 +229,25 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const DELETE: RequestHandler = async ({ request }) => {
-	console.log('Deleting movie');
+	console.log('DELETE request to api/movies');
+
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
+
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
+		return new Response(
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
+			{
+				status: 401,
+				headers: {
+					'Access-Control-Allow-Origin': requestOrigin,
+					'Access-Control-Allow-Methods': 'DELETE'
+				}
+			}
+		);
+	}
+
 	try {
 		const requestBody = await request.json();
 		const id = requestBody.id;
@@ -303,10 +355,13 @@ export const DELETE: RequestHandler = async ({ request }) => {
 	}
 };
 
-export const PATCH: RequestHandler = async (event) => {
-	const requestOrigin = event.request.headers.get('Origin');
+export const PATCH: RequestHandler = async ({ request }) => {
+	console.log('PATCH request to api/movies');
+	const requestOrigin = request.headers.get('Origin');
+	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
 
-	if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
+	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
+	if (isAllowedOrigin) {
 		return new Response(
 			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
 			{
@@ -319,7 +374,7 @@ export const PATCH: RequestHandler = async (event) => {
 		);
 	}
 
-	const requestBody = await event.request.json();
+	const requestBody = await request.json();
 
 	const genreArray: Genre[] = [];
 
@@ -388,7 +443,9 @@ export const PATCH: RequestHandler = async (event) => {
 			})
 			.catch((error: MongoServerError) => {
 				return new Response(
-					JSON.stringify({ errorMessage: `Failed to update movie ${data.title}: ${error.message}` }),
+					JSON.stringify({
+						errorMessage: `Failed to update movie ${data.title}: ${error.message}`
+					}),
 					{
 						status: 400,
 						headers: {
