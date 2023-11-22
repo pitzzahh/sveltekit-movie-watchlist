@@ -17,14 +17,15 @@ export const addSchema = z.object({
 				if (isNaN(Number(value))) {
 					throw error(400, 'Year must be a number');
 				}
-				return Number(value) >= 1900 && Number(value) <= new Date().getFullYear();
+				return Number(value) >= 1888 && Number(value) <= new Date().getFullYear();
 			},
-			{ message: 'Year must be between 1900 and current year' }
+			{ message: 'Year must be between 1888 and current year' }
 		),
 	rating: z
 		.string()
 		.min(1, { message: 'Rating must be at least 1 characters long' })
-		.max(10, { message: 'Rating cannot exceed 10 characters' })
+		.max(10, { message: 'Rating cannot exceed 10 characters' }),
+	watched: z.boolean()
 });
 
 export type FormSchema = typeof addSchema;

@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, type Actions, type RequestEvent, error } from '@sveltejs/kit';
 import { genres, getDocumentById, movies } from '$db/collections';
-import { fetchMovies, host, mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
+import { fetchMovies, host, mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
 import type { Document, MongoServerError } from 'mongodb';
 import { modifySchema } from './schema';
 
@@ -32,11 +32,18 @@ export const load = (async (event: RequestEvent) => {
 				: { ...movie, _id: movie._id.toString() };
 
 			console.log(`Movie with appropriate genres: ${JSON.stringify(updatedMovie)}`);
+			let form = await superValidate(modifySchema, {
+				id: 'modifySchema'
+			});
+
+			form.data.title = updatedMovie.title;
+			form.data.genres = updatedMovie.genres.join(' ');
+			form.data.year = updatedMovie.year.toString();
+			form.data.rating = updatedMovie.rating.toString();
+			form.data.watched = updatedMovie.watched;
 			return {
 				movie: updatedMovie,
-				form: await superValidate(modifySchema, {
-					id: 'modifySchema'
-				})
+				form: form
 			};
 		})
 		.catch((e: MongoServerError) => {
@@ -49,12 +56,6 @@ export const actions: Actions = {
 		const form = await superValidate(event, modifySchema, {
 			id: 'modifySchema'
 		});
-
-		store.update((state) => ({
-			...state,
-			movie: form.data.title,
-			isProcessing: true
-		}));
 
 		if (!form.valid) {
 			return fail(400, {
@@ -85,11 +86,6 @@ export const actions: Actions = {
 			});
 			const res = await response.json();
 
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
-
 			return {
 				form,
 				result: res,
@@ -97,10 +93,6 @@ export const actions: Actions = {
 				errorMessage: res.errorMessage
 			};
 		} catch (error: any) {
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
 			return {
 				form,
 				valid: false,

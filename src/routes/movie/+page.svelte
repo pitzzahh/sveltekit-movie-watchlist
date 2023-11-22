@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { PageData, ActionData } from './$types';
-	import AddMovieForm from './AddMovieForm.svelte';
+	import MovieForm from '$lib/components/MovieForm.svelte';
 	export let data: PageData;
 	export let form: ActionData;
 </script>
 
-<AddMovieForm 
+<MovieForm 
+	movie={form?.movie}
 	form={data.form} 
 	isValid={form?.valid} 
-	errMsg={form?.errorMessage} 
+	errMsg={form?.errorMessage}
 />

@@ -1,1 +1,10 @@
-export const prerender = true;
+import { fetchMovies } from "$lib";
+import type { PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = () => {
+	return {
+		streamed: {
+			movies: fetchMovies()
+		},
+	};
+};

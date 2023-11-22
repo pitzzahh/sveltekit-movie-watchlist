@@ -212,7 +212,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 			.then((fetchedMovie: Document) => {
 				if (!fetchedMovie) {
 					return new Response(
-						JSON.stringify({ errorMesage: `Movie with id ${id} is not a movie document!` }),
+						JSON.stringify({ errorMessage: `Movie with id ${id} is not a movie document!` }),
 						{
 							status: 400,
 							headers: {
@@ -268,7 +268,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 						);
 					})
 					.catch((error: MongoServerError) => {
-						return new Response(JSON.stringify({ errorMesage: error.message }), {
+						return new Response(JSON.stringify({ errorMessage: error.message }), {
 							status: 500,
 							headers: {
 								'Access-Control-Allow-Origin': '*',
@@ -281,7 +281,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 				() =>
 					new Response(
 						JSON.stringify({
-							errorMesage: `Cannot delete movie, movie with id ${id} does not exist`
+							errorMessage: `Cannot delete movie, movie with id ${id} does not exist`
 						}),
 						{
 							status: 404,
@@ -293,7 +293,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 					)
 			);
 	} catch {
-		return new Response(JSON.stringify({ errorMesage: 'Cannot delete movie, invalid body' }), {
+		return new Response(JSON.stringify({ errorMessage: 'Cannot delete movie, invalid body' }), {
 			status: 404,
 			headers: {
 				'Access-Control-Allow-Origin': '*',
@@ -308,7 +308,7 @@ export const PATCH: RequestHandler = async (event) => {
 
 	if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
 		return new Response(
-			JSON.stringify({ errorMesage: `Origin ${requestOrigin} is not authorized` }),
+			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
 			{
 				status: 401,
 				headers: {
@@ -388,7 +388,7 @@ export const PATCH: RequestHandler = async (event) => {
 			})
 			.catch((error: MongoServerError) => {
 				return new Response(
-					JSON.stringify({ errorMesage: `Failed to update movie ${data.title}: ${error.message}` }),
+					JSON.stringify({ errorMessage: `Failed to update movie ${data.title}: ${error.message}` }),
 					{
 						status: 400,
 						headers: {

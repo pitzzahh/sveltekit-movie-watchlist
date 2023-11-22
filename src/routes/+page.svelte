@@ -10,32 +10,21 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { fetchMovies, host, store } from '$lib';
-	import { userPrefersMode } from 'mode-watcher';
+	import type { PageData } from './$types';
 
 	export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
 	export let pageDescription =
 		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
 	export let pageUrl = host;
-	onMount(() => {
-		try {
-			return store.update((state) => ({
-				...state,
-				movies: fetchMovies()
-			}));
-		} catch (err) {
-			throw error(500, `${JSON.stringify(err)}`);
-		}
-	});
+
+	export let data: PageData;
 </script>
 
 <svelte:head>
 	<title>{pageTitle}</title>
 	<meta name="description" content={pageDescription} />
 	<meta name="author" content="Peter John Arao" />
-	<meta
-		name="keywords"
-		content="SvelteKit Movie watchlist, movie watch list"
-	/>
+	<meta name="keywords" content="SvelteKit Movie watchlist, movie watch list" />
 	<meta name="robots" content="index, follow" />
 	<link rel="canonical" href="{pageUrl}/" />
 	<meta http-equiv="Content-Language" content="en" />
@@ -44,16 +33,13 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta property="og:description" content={pageDescription} />
 	<meta property="og:url" content="{pageUrl}/" />
-	<meta
-		property="og:image"
-		content={$userPrefersMode === 'dark' ? 'thumbnail-dark.png' : 'thumbnail-light.png'}
-	/>
+	<meta property="og:image" content="thumbnail.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
 </svelte:head>
 
 <div in:fade>
-	{#await $store.movies}
+	{#await data.streamed.movies}
 		<div class="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 m-4">
 			{#each Array.from({ length: 6 }, (_, index) => index + 1) as option (option)}
 				<Card.Root class="w-full">
