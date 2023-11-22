@@ -50,7 +50,9 @@ export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 				);
 
 				for (const gData of genresData) {
-					const foundGenre: Genre | undefined = mappedGenres.find((g) => areStringsSimilar(gData.name, g.name, true));
+					const foundGenre: Genre | undefined = mappedGenres.find((g) => {
+						areStringsSimilar(gData.name, g.name, true, areStringsSimilar(gData.name, 'Comedy', true, 1) ? 1 : 0.5);
+					});
 					console.log(`Similar Genre: ${JSON.stringify(foundGenre)}`);
 
 					if (foundGenre) {
