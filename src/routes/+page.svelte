@@ -40,7 +40,7 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta property="og:description" content={pageDescription} />
 	<meta property="og:url" content="{pageUrl}/" />
-	<meta property="og:image" content="thumbnail-dark.png" />
+	<meta property="og:image" content="thumbnail.png" />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content={pageTitle} />
 </svelte:head>

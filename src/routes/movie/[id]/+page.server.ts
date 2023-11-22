@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { fail, type Actions, type RequestEvent, error } from '@sveltejs/kit';
 import { genres, getDocumentById, movies } from '$db/collections';
-import { fetchMovies, host, mapFetchedGenreToType, mapFetchedMovieToType, store } from '$lib';
+import { fetchMovies, host, mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
 import type { Document, MongoServerError } from 'mongodb';
 import { modifySchema } from './schema';
 
@@ -50,12 +50,6 @@ export const actions: Actions = {
 			id: 'modifySchema'
 		});
 
-		store.update((state) => ({
-			...state,
-			movie: form.data.title,
-			isProcessing: true
-		}));
-
 		if (!form.valid) {
 			return fail(400, {
 				form,
@@ -85,11 +79,6 @@ export const actions: Actions = {
 			});
 			const res = await response.json();
 
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
-
 			return {
 				form,
 				result: res,
@@ -97,10 +86,6 @@ export const actions: Actions = {
 				errorMessage: res.errorMessage
 			};
 		} catch (error: any) {
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
 			return {
 				form,
 				valid: false,

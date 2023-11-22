@@ -1,8 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { addSchema } from './schema';
-import { fail, type Actions, type RequestEvent } from '@sveltejs/kit';
-import { host, store } from '$lib';
+import { fail, type Actions } from '@sveltejs/kit';
+import { host } from '$lib';
 
 export const load = (() => {
 	return {
@@ -21,15 +21,10 @@ export const actions: Actions = {
 
 		if (!form.valid) {
 			return fail(400, {
-				form
+				form,
+				movie: undefined
 			});
 		}
-
-		store.update((state) => ({
-			...state,
-			movie: form.data.title,
-			isProcessing: true
-		}));
 
 		const genres: string[] = form.data.genres.split(' ')
 			.map((genre) => genre)
@@ -54,25 +49,18 @@ export const actions: Actions = {
 			});
 			const res = await response.json();
 
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
-
 			return {
 				form,
 				result: res,
+				movie: undefined,
 				valid: response.ok,
 				errorMessage: res.errorMessage
 			};
 
 		} catch (error: any) {
-			store.update((state) => ({
-				...state,
-				isProcessing: false
-			}));
 			return {
 				form,
+				movie: undefined,
 				valid: false,
 				errorMessage: error.message
 			};

@@ -11,6 +11,7 @@
 	async function deleteMovie(): Promise<any> {
 		return new Promise(async (resolve, reject) => {
 			try {
+				console.log(`Deleting movie with title: ${movie.title}`)
 				const response: Response = await fetch(`${host}/api/movies`, {
 					method: 'DELETE',
 					headers: {

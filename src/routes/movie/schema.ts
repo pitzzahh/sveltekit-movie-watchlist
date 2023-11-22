@@ -17,9 +17,9 @@ export const addSchema = z.object({
 				if (isNaN(Number(value))) {
 					throw error(400, 'Year must be a number');
 				}
-				return Number(value) >= 1900 && Number(value) <= new Date().getFullYear();
+				return Number(value) >= 1888 && Number(value) <= new Date().getFullYear();
 			},
-			{ message: 'Year must be between 1900 and current year' }
+			{ message: 'Year must be between 1888 and current year' }
 		),
 	rating: z
 		.string()
