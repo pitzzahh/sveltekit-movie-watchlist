@@ -63,7 +63,7 @@ export const actions: Actions = {
 			});
 		}
 
-		if(!event.params.id) {
+		if (!event.params.id) {
 			return fail(400, {
 				form,
 				valid: false,
@@ -93,11 +93,11 @@ export const actions: Actions = {
 				body: JSON.stringify(data)
 			});
 			const res = await response.json();
-
 			return {
 				form,
 				result: res,
 				valid: response.ok,
+				message: res.message,
 				errorMessage: res.errorMessage
 			};
 		} catch (error: any) {
