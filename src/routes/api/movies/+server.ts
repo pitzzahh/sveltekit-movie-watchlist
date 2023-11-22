@@ -10,7 +10,6 @@ import {
 	mapFetchedMovieToType,
 	mapFetchedGenreToType,
 	areStringsSimilar,
-	allowedOrigins,
 	toPascalCase
 } from '$lib';
 
@@ -20,22 +19,7 @@ import { ObjectId } from 'mongodb';
 
 export const GET: RequestHandler = async ({ request }) => {
 	console.log('GET request to api/movies');
-	const requestOrigin = request.headers.get('Origin');
-	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
 
-	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
-	if (isAllowedOrigin) {
-		return new Response(
-			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
-			{
-				status: 401,
-				headers: {
-					'Access-Control-Allow-Origin': requestOrigin,
-					'Access-Control-Allow-Methods': 'GET'
-				}
-			}
-		);
-	}
 	return fetchDataFromMongoDB(movies)
 		.then((movieDocuments: Document[]) =>
 			Promise.all(
@@ -101,22 +85,6 @@ export const GET: RequestHandler = async ({ request }) => {
 export const POST: RequestHandler = async ({ request }) => {
 	console.log('POST request to api/movies');
 
-	const requestOrigin = request.headers.get('Origin');
-	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
-
-	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
-	if (isAllowedOrigin) {
-		return new Response(
-			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
-			{
-				status: 401,
-				headers: {
-					'Access-Control-Allow-Origin': requestOrigin,
-					'Access-Control-Allow-Methods': 'POST'
-				}
-			}
-		);
-	}
 	const requestBody = await request.json();
 	const data: MovieDTO = {
 		title: requestBody.title,
@@ -231,23 +199,6 @@ export const POST: RequestHandler = async ({ request }) => {
 export const DELETE: RequestHandler = async ({ request }) => {
 	console.log('DELETE request to api/movies');
 
-	const requestOrigin = request.headers.get('Origin');
-	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
-
-	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
-	if (isAllowedOrigin) {
-		return new Response(
-			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
-			{
-				status: 401,
-				headers: {
-					'Access-Control-Allow-Origin': requestOrigin,
-					'Access-Control-Allow-Methods': 'DELETE'
-				}
-			}
-		);
-	}
-
 	try {
 		const requestBody = await request.json();
 		const id = requestBody.id;
@@ -357,22 +308,6 @@ export const DELETE: RequestHandler = async ({ request }) => {
 
 export const PATCH: RequestHandler = async ({ request }) => {
 	console.log('PATCH request to api/movies');
-	const requestOrigin = request.headers.get('Origin');
-	const isAllowedOrigin = requestOrigin && allowedOrigins.includes(requestOrigin);
-
-	console.log(`Request origin: ${requestOrigin} allowed: ${isAllowedOrigin}`);
-	if (isAllowedOrigin) {
-		return new Response(
-			JSON.stringify({ errorMessage: `Origin ${requestOrigin} is not authorized` }),
-			{
-				status: 401,
-				headers: {
-					'Access-Control-Allow-Origin': requestOrigin,
-					'Access-Control-Allow-Methods': 'PATCH'
-				}
-			}
-		);
-	}
 
 	const requestBody: Movie = await request.json();
 
@@ -433,7 +368,9 @@ export const PATCH: RequestHandler = async ({ request }) => {
 						}
 					);
 				}
-				const message = areStringsSimilar(oldMovie?.title, data.title) ? 'Movie updated sucessfully' : `Movie ${oldMovie?.title} updated to ${data.title}`
+				const message = areStringsSimilar(oldMovie?.title, data.title)
+					? 'Movie updated sucessfully'
+					: `Movie ${oldMovie?.title} updated to ${data.title}`;
 				return new Response(
 					JSON.stringify({
 						movie: data,
