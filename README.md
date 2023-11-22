@@ -1,4 +1,7 @@
-# create-svelte
+# Movie WatchList
+
+[![Run Tests](https://github.com/pitzzahh/sveltekit-movie-watchlist/actions/workflows/tests.yml/badge.svg)](https://github.com/pitzzahh/sveltekit-movie-watchlist/actions/workflows/tests.yml)
+![Vercel](http://therealsujitk-vercel-badge.vercel.app/?app=sveltekit-movie-watchlist)
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
