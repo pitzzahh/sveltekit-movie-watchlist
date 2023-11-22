@@ -92,7 +92,7 @@
 					builders={[builder]}
 					class="mt-2"
 					formaction={isModifying ? '?/modifyMovie' : '?/addMovie'}
-					>{isModifying ? `Update movie ${movie?.title}` : `Add movie ${movie?.title}`}</Form.Button
+					>{isModifying ? `Update movie ${movie?.title}` : `Add movie`}</Form.Button
 				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
