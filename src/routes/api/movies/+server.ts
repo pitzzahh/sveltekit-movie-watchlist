@@ -374,14 +374,13 @@ export const PATCH: RequestHandler = async ({ request }) => {
 		);
 	}
 
-	const requestBody = await request.json();
+	const requestBody: Movie = await request.json();
 
-	const genreArray: Genre[] = [];
+	console.log(`Request body in PATH: ${JSON.stringify(requestBody)}`);
+	const genres: GenreDTO[] = [];
 
-	const genreString: string[] = requestBody.genres.split(' ');
-	genreString.forEach((genre) => {
-		genreArray.push({
-			_id: '',
+	requestBody.genres.forEach((genre: string) => {
+		genres.push({
 			name: genre
 		});
 	});
@@ -391,19 +390,27 @@ export const PATCH: RequestHandler = async ({ request }) => {
 		genres: [],
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
-		watched: false
+		watched: requestBody.watched
 	};
 
-	return getDocumentById(movies, requestBody.data._id).then((document: Document) =>
-		addGenres(genreArray)
+	console.log(`Genres DTO: ${JSON.stringify(genres)}`);
+	return getDocumentById(movies, requestBody._id).then((document: Document) =>
+		addGenres(genres)
 			.then(async (genresId: string[]) => {
 				data.genres = genresId;
-				const result: UpdateResult<MovieDTO> = await movies.updateOne(
-					{ _id: new ObjectId(requestBody.data._id) },
-					{
-						$set: data
+				const filter = { _id: new ObjectId(requestBody._id) };
+
+				const update = {
+					$set: {
+						title: data.title,
+						genres: data.genres,
+						year: data.year,
+						rating: data.rating,
+						watched: data.watched
 					}
-				);
+				};
+				const oldMovie: Movie | undefined = mapFetchedMovieToType(document);
+				const result: UpdateResult<Movie> = await movies.updateOne(filter, update);
 
 				const isAcknowledged = result.acknowledged;
 				const modifiedCount = result.modifiedCount;
@@ -426,10 +433,11 @@ export const PATCH: RequestHandler = async ({ request }) => {
 						}
 					);
 				}
+				const message = areStringsSimilar(oldMovie?.title, data.title) ? 'Movie updated sucessfully' : `Movie ${oldMovie?.title} updated to ${data.title}`
 				return new Response(
 					JSON.stringify({
 						movie: data,
-						message: 'Movie updated'
+						message
 					}),
 					{
 						status: 202,
