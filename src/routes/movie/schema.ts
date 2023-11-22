@@ -24,7 +24,8 @@ export const addSchema = z.object({
 	rating: z
 		.string()
 		.min(1, { message: 'Rating must be at least 1 characters long' })
-		.max(10, { message: 'Rating cannot exceed 10 characters' })
+		.max(10, { message: 'Rating cannot exceed 10 characters' }),
+	watched: z.boolean()
 });
 
 export type FormSchema = typeof addSchema;
