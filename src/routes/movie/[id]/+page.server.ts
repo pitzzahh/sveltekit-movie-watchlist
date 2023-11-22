@@ -63,14 +63,23 @@ export const actions: Actions = {
 			});
 		}
 
+		if(!event.params.id) {
+			return fail(400, {
+				form,
+				valid: false,
+				errorMessage: 'No id provided'
+			});
+		}
+
 		const genres: string[] = form.data.genres.split(' ').map((genre) => genre);
 
-		let data: MovieDTO = {
+		let data: Movie = {
+			_id: event.params.id,
 			title: form.data.title,
 			genres,
 			year: Number(form.data.year),
 			rating: Number(form.data.rating),
-			watched: false
+			watched: form.data.watched
 		};
 
 		console.log(`Movie to be updated:${JSON.stringify(data)}`);
