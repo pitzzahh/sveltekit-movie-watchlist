@@ -1,0 +1,14 @@
+{
+    "short_name": "Movie Watchlist",
+    "name": "SvelteKit x MongoDB x shadcn-svelte Movie Watch List",
+    "start_url": "/",
+    "display": "standalone",
+    "icons": [
+		{
+		    "src": "favicon.png",
+		    "type": "image/png",
+		    "sizes": "144x144"
+		}
+    ],
+    "description": "SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app"
+}
