@@ -86,18 +86,15 @@ export const POST: RequestHandler = async ({ request }) => {
 	console.log('POST request to api/movies');
 
 	const requestBody = await request.json();
-	
-	const genres: string[] = Array.from(new Set(requestBody.genres.split(' ')));
 
 	const data: MovieDTO = {
 		title: requestBody.title,
-		genres,
+		genres: Array.from(new Set(requestBody.genres)),
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
 		watched: requestBody.watched
 	};
 
-	console.log(`POST Request body in api/movies: ${JSON.stringify(requestBody)}`);
 	return fetchDataFromMongoDB(movies)
 		.then((movieDocuments: Document[]) => {
 			const mappedMovies: Movie[] = movieDocuments.map((doc: Document) =>
@@ -314,28 +311,21 @@ export const PATCH: RequestHandler = async ({ request }) => {
 
 	const requestBody: Movie = await request.json();
 
-	console.log(`Request body in PATH: ${JSON.stringify(requestBody)}`);
-	const genres: GenreDTO[] = [];
-
-	requestBody.genres.forEach((genre: string) => {
-		genres.push({
-			name: genre
-		});
-	});
-
-	const data: MovieDTO = {
-		title: requestBody.title,
-		genres: [],
-		year: Number(requestBody.year),
-		rating: Number(requestBody.rating),
-		watched: requestBody.watched
-	};
+	const genres: GenreDTO[] = requestBody.genres.map((genre: string) => ({
+		name: genre
+	}));
 
 	console.log(`Genres DTO: ${JSON.stringify(genres)}`);
 	return getDocumentById(movies, requestBody._id).then((document: Document) =>
 		addGenres(genres)
 			.then(async (genresId: string[]) => {
-				data.genres = genresId;
+				const data: MovieDTO = {
+					title: requestBody.title,
+					genres: genresId,
+					year: Number(requestBody.year),
+					rating: Number(requestBody.rating),
+					watched: requestBody.watched
+				};
 				const filter = { _id: new ObjectId(requestBody._id) };
 
 				const update = {
@@ -392,7 +382,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 			.catch((error: MongoServerError) => {
 				return new Response(
 					JSON.stringify({
-						errorMessage: `Failed to update movie ${data.title}: ${error.message}`
+						errorMessage: `Failed to update movie ${requestBody.title}: ${error.message}`
 					}),
 					{
 						status: 400,
