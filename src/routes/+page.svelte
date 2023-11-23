@@ -13,7 +13,7 @@
 
 	export let pageTitle = 'SvelteKit x MongoDB x shadcn-svelte Movie Watch List';
 	export let pageDescription =
-		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app. ';
+		'SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app.';
 	export let pageUrl = host;
 	export let data: PageData;
 
