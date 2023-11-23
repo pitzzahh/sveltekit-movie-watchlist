@@ -10,7 +10,7 @@ const addDomain = (assets: string[]) =>
   assets.map((f) => self.location.origin + f);
 
 const ourAssets = addDomain([
-  ...files.filter((f) => !/\/icons\/(apple.*?|original.png)/.test(f)),
+  ...files.filter((f: string) => !/\/icons\/(apple.*?|original.png)/.test(f)),
   ...build,
   ...routes,
 ]);
@@ -18,7 +18,7 @@ const ourAssets = addDomain([
 const toCache = [...ourAssets];
 const staticAssets = new Set(toCache);
 
-worker.addEventListener("install", (event) => {
+worker.addEventListener("install", (event: { waitUntil: (arg0: Promise<void>) => void; }) => {
   event.waitUntil(
     caches
       .open(STATIC_CACHE_NAME)
@@ -31,7 +31,7 @@ worker.addEventListener("install", (event) => {
   );
 });
 
-worker.addEventListener("activate", (event) => {
+worker.addEventListener("activate", (event: { waitUntil: (arg0: Promise<void>) => void; }) => {
   event.waitUntil(
     caches.keys().then(async (keys) => {
       // delete old caches
@@ -67,7 +67,7 @@ async function fetchAndCache(request: Request) {
   }
 }
 
-worker.addEventListener("fetch", (event) => {
+worker.addEventListener("fetch", (event: { request: RequestInfo | URL; respondWith: (arg0: Promise<Response>) => void; }) => {
   if (event.request.method !== "GET" || event.request.headers.has("range")) {
     return;
   }
