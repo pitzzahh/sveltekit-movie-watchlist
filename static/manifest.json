@@ -2,7 +2,7 @@
     "short_name": "Movie Watchlist",
     "name": "SvelteKit x MongoDB x shadcn-svelte Movie Watch List",
     "start_url": "/",
-    "display": "minimal-ui",
+    "display": "standalone",
     "icons": [
         {
             "src": "svelte-android-chrome-192.png",
