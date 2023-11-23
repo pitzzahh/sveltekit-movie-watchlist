@@ -86,9 +86,12 @@ export const POST: RequestHandler = async ({ request }) => {
 	console.log('POST request to api/movies');
 
 	const requestBody = await request.json();
+	
+	const genres: string[] = Array.from(new Set(requestBody.genres.split(' ')));
+
 	const data: MovieDTO = {
 		title: requestBody.title,
-		genres: requestBody.genres,
+		genres,
 		year: Number(requestBody.year),
 		rating: Number(requestBody.rating),
 		watched: requestBody.watched
