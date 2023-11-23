@@ -31,7 +31,6 @@ export const movieFormInfo = [
 export const store = writable({
 	openForm: false,
 	isProcessing: false,
-	movie: '',
 	movies: Promise.resolve([] as Movie[])
 });
 

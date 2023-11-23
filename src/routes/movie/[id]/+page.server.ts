@@ -30,7 +30,6 @@ export const load = (async (event: RequestEvent) => {
 				? { ...movie, genres: movieGenres, _id: movie._id.toString() }
 				: { ...movie, _id: movie._id.toString() };
 
-			console.log(`Movie with appropriate genres: ${JSON.stringify(updatedMovie)}`);
 			let form = await superValidate(modifySchema, {
 				id: 'modifySchema'
 			});
