@@ -125,16 +125,18 @@ export const fetchMovies = async (): Promise<Movie[]> => {
 		const response: Response = await fetch(`${host}/api/movies`, {
 			method: 'GET'
 		});
-		if (response.ok) {
-			return await response.json();
-		} else {
-			throw error(response.status, `Failed to fetch movies. Status: ${response.statusText}`);
-		}
+		return response.json().then((data) => {
+			if (response.ok) {
+				return data;
+			} else {
+				throw error(response.status, `Failed to fetch movies. Status: ${data.statusText}`);
+			}
+		});
 	} catch (err) {
 		throw error(400, `Error fetching movies: ${err}`);
 	}
 };
 
 export const host: string = dev
-	? 'https://orange-space-rotary-phone-jprqjx649xr3pqj5-5173.app.github.dev'
+	? 'https://didactic-succotash-jprqjx6465php756-5173.app.github.dev'
 	: 'https://sveltekit-movie-watchlist.vercel.app';
