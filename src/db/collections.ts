@@ -1,11 +1,5 @@
 import db from '$db/mongo';
-import {
-	areStringsSimilar,
-	fetchMovies,
-	mapFetchedGenreToType,
-	mapFetchedMovieToType,
-	store
-} from '$lib';
+import { areStringsSimilar, mapFetchedGenreToType, mapFetchedMovieToType } from '$lib';
 import { error } from '@sveltejs/kit';
 import {
 	type Collection,
@@ -56,7 +50,9 @@ export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 				);
 
 				for (const gData of genresData) {
-					const foundGenre: Genre | undefined = mappedGenres.find((g) => areStringsSimilar(gData.name, g.name));
+					const foundGenre: Genre | undefined = mappedGenres.find((g) =>
+						areStringsSimilar(gData.name, g.name)
+					);
 					console.log(`Similar Genre: ${JSON.stringify(foundGenre)}`);
 
 					if (foundGenre) {
@@ -85,16 +81,6 @@ export const addGenres = (genresData: GenreDTO[]): Promise<string[]> => {
 			.catch((error: MongoServerError) => {
 				reject(error.message);
 			});
-	});
-};
-
-export const updateMovieByid = async (id: string, movie: Movie): Promise<boolean> => {
-	return new Promise(async (resolve, reject) => {
-		const movieDocuments: Document[] = await fetchDataFromMongoDB(movies, {
-			_id: new ObjectId(id)
-		});
-		const mappedMovies: Movie[] = movieDocuments.map((doc: Document) => mapFetchedMovieToType(doc));
-		const res: Movie | undefined = mappedMovies.find((m) => m.title === movie.title);
 	});
 };
 
