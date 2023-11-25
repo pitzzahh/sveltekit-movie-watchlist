@@ -17,7 +17,7 @@ import type { RequestHandler } from './$types';
 import type { Document, InsertOneResult, MongoServerError, UpdateResult } from 'mongodb';
 import { ObjectId } from 'mongodb';
 
-export const GET: RequestHandler = async ({ request }) => {
+export const GET: RequestHandler = async () => {
 	console.log('GET request to api/movies');
 
 	return fetchDataFromMongoDB(movies)
