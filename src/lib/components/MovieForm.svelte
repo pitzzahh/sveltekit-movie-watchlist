@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { movieFormInfo, store } from '$lib';
+	import { Loader2 } from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Form from '$lib/components/ui/form';
 	import { toast } from 'svelte-sonner';
@@ -12,12 +13,17 @@
 	export let movie: Movie | undefined;
 	export let form: SuperValidated<any>;
 	export let errMsg: string = '';
-	export let message: string = isModifying ? 'Movie updated sucessfully' : 'Movie added successfully'
+	export let message: string = isModifying
+		? 'Movie updated sucessfully'
+		: 'Movie added successfully';
 	export let isValid: boolean | undefined = undefined;
+
+	$: isProcessing = false;
 
 	$: {
 		if (isValid) {
 			toast.success(message);
+			isProcessing = false;
 			goto('/');
 		}
 		if (isValid != undefined && !isValid) {
@@ -25,6 +31,7 @@
 				isModifying ? `Failed to update movie: ${errMsg}` : `Failed to add movie: ${errMsg}`
 			);
 		}
+		isProcessing = false;
 	}
 </script>
 
@@ -91,9 +98,17 @@
 			<Tooltip.Trigger asChild let:builder>
 				<Form.Button
 					builders={[builder]}
-					class="mt-2"
+					class={`mt-2 ${isProcessing ? 'cursor-not-allowed' : 'cursor-default'}`}
+					on:click={() => {
+						isProcessing = true;
+					}}
+					disabled={isProcessing}
 					formaction={isModifying ? '?/modifyMovie' : '?/addMovie'}
-					>{isModifying ? `Update movie ${movie?.title}` : `Add movie`}</Form.Button
+				>
+					{#if isProcessing}
+						<Loader2 class="mr-2 animate-spin" />
+					{/if}
+					{isModifying ? `Update movie ${movie?.title}` : `Add movie`}</Form.Button
 				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
+	import { Loader2 } from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -8,9 +9,13 @@
 	import { host, fetchMovies, store } from '$lib';
 	export let movie: Movie;
 
+	$: isDeleting = false;
+	$: isModifying = false;
+
 	async function deleteMovie(): Promise<any> {
 		return new Promise(async (resolve, reject) => {
 			try {
+				isDeleting = true;
 				console.log(`Deleting movie with title: ${movie.title}`);
 				const response: Response = await fetch(`${host}/api/movies`, {
 					method: 'DELETE',
@@ -26,7 +31,9 @@
 					const res = await response.json();
 					reject(res.errorMessage);
 				}
+				isDeleting = false;
 			} catch (error: any) {
+				isDeleting = false;
 				console.error('Error deleting movie');
 				reject(error.errorMessage);
 			}
@@ -53,10 +60,16 @@
 			<Tooltip.Trigger asChild let:builder>
 				<Button
 					builders={[builder]}
+					class={`${isModifying ? 'cursor-not-allowed' : 'cursor-default'}`}
 					on:click={() => {
-						console.log(`Movie Id in params: ${movie._id}`);
-						goto(`/movie/${movie._id}`);
-					}}>Modify</Button
+						isModifying = true;
+						goto(`/movie/${movie._id}`).then(() => (isModifying = false));
+					}}
+				>
+					{#if isModifying}
+						<Loader2 class="mr-2 animate-spin" />
+					{/if}
+					Modify</Button
 				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
@@ -68,6 +81,7 @@
 			<Tooltip.Trigger asChild let:builder>
 				<Button
 					builders={[builder]}
+					class={`${isDeleting ? 'cursor-not-allowed' : 'cursor-default'}`}
 					variant="destructive"
 					on:click={() => {
 						toast.promise(deleteMovie, {
@@ -83,7 +97,12 @@
 								return `${err}`;
 							}
 						});
-					}}>Delete</Button
+					}}
+				>
+					{#if isDeleting}
+						<Loader2 class="mr-2 animate-spin" />
+					{/if}
+					Delete</Button
 				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
