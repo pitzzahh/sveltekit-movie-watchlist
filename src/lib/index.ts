@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { Document } from 'mongodb';
 import { writable } from 'svelte/store';
-import s from 'string-similarity';
+import { distance } from 'fastest-levenshtein';
 
 const dev = false;
 
@@ -82,7 +82,7 @@ export const areStringsSimilar = (
 ): boolean => {
 	const similarityThreshold = threshHold ? threshHold : 0.1;
 	if (genreCheck) {
-		return s.compareTwoStrings(a.toLowerCase(), b.toLowerCase()) > similarityThreshold;
+		return distance(a.toLowerCase(), b.toLowerCase()) > similarityThreshold;
 	}
 	const cleanString = (str: string): string => str.replace(/[-\s]/g, '');
 	const result =
