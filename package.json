@@ -37,7 +37,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@vercel/og": "^0.5.20",
 		"bits-ui": "^0.9.7",
 		"clsx": "^2.0.0",
 		"fastest-levenshtein": "^1.0.16",
