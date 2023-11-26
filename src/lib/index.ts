@@ -3,7 +3,7 @@ import type { Document } from 'mongodb';
 import { writable } from 'svelte/store';
 import { distance } from 'fastest-levenshtein';
 
-const dev = false;
+const dev = true;
 
 export const movieFormInfo = [
 	{
@@ -77,18 +77,18 @@ export const toPascalCase = (str: string): string => {
 export const areStringsSimilar = (
 	a: string,
 	b: string,
-	genreCheck: boolean = false,
+	advance: boolean = false,
 	threshHold: number = 0.5
 ): boolean => {
 	const similarityThreshold = threshHold ? threshHold : 0.1;
-	if (genreCheck) {
+	if (advance) {
 		return distance(a.toLowerCase(), b.toLowerCase()) > similarityThreshold;
 	}
 	const cleanString = (str: string): string => str.replace(/[-\s]/g, '');
 	const result =
 		levenshteinDistance(cleanString(a.toLowerCase()), cleanString(b.toLowerCase())) <=
 		similarityThreshold;
-	console.log(`Comparing ${a} and ${b}: ${result}`);
+	console.log(`${a} and ${b} the same: ${result}`);
 	return result;
 };
 
@@ -137,5 +137,5 @@ export const fetchMovies = async (): Promise<Movie[]> => {
 };
 
 export const host: string = dev
-	? 'https://didactic-succotash-jprqjx6465php756-5173.app.github.dev'
+	? 'https://stunning-happiness-wqvgrw69494c56-5173.app.github.dev'
 	: 'https://sveltekit-movie-watchlist.vercel.app';

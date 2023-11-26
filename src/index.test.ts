@@ -14,7 +14,7 @@ describe('similarity-test', () => {
 	it(`check if ${firstString} is ${
 		expected ? 'similar' : 'not similar'
 	} to ${secondString}`, async () => {
-		const response = checkSimilarity(firstString, secondString);
+		const response = checkSimilarity(firstString, secondString, true);
 		expect(response).toBe(expected);
 	});
 });
@@ -26,7 +26,7 @@ describe('similarity-test', () => {
 	it(`check if ${firstString} is ${
 		expected ? 'similar' : 'not similar'
 	} to ${secondString}`, async () => {
-		const response = checkSimilarity(firstString, secondString, false, 1);
+		const response = checkSimilarity(firstString, secondString);
 		expect(response).toBe(expected);
 	});
 });

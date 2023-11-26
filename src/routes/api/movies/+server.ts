@@ -103,7 +103,9 @@ export const POST: RequestHandler = async ({ request }) => {
 			const res: Movie | undefined = mappedMovies.find((movie: Movie) =>
 				areStringsSimilar(requestBody.title, movie.title)
 			);
-			console.log(`Movie that is found similar: ${JSON.stringify(res)}`);
+			console.log(
+				`${res === undefined ? `No similar movie found` : `Similar movie found: %{res}`}`
+			);
 			if (res) {
 				return new Response(
 					JSON.stringify({ errorMessage: `Movie ${data.title} already exists` }),
@@ -140,6 +142,7 @@ export const POST: RequestHandler = async ({ request }) => {
 									{
 										status: 400,
 										headers: {
+											'Content-Type': 'application/json',
 											'Access-Control-Allow-Origin': '*',
 											'Access-Control-Allow-Methods': 'POST'
 										}
@@ -206,6 +209,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 			return new Response(JSON.stringify({ errorMessage: 'No movie id specified' }), {
 				status: 404,
 				headers: {
+					'Content-Type': 'application/json',
 					'Access-Control-Allow-Origin': '*',
 					'Access-Control-Allow-Methods': 'DELETE'
 				}
@@ -219,6 +223,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 						{
 							status: 400,
 							headers: {
+								'Content-Type': 'application/json',
 								'Access-Control-Allow-Origin': '*',
 								'Access-Control-Allow-Methods': 'DELETE'
 							}
@@ -247,6 +252,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 								{
 									status: 400,
 									headers: {
+										'Content-Type': 'application/json',
 										'Access-Control-Allow-Origin': '*',
 										'Access-Control-Allow-Methods': 'DELETE'
 									}
@@ -274,6 +280,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 						return new Response(JSON.stringify({ errorMessage: error.message }), {
 							status: 500,
 							headers: {
+								'Content-Type': 'application/json',
 								'Access-Control-Allow-Origin': '*',
 								'Access-Control-Allow-Methods': 'DELETE'
 							}
@@ -289,6 +296,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 						{
 							status: 404,
 							headers: {
+								'Content-Type': 'application/json',
 								'Access-Control-Allow-Origin': '*',
 								'Access-Control-Allow-Methods': 'DELETE'
 							}
@@ -299,6 +307,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 		return new Response(JSON.stringify({ errorMessage: 'Cannot delete movie, invalid body' }), {
 			status: 404,
 			headers: {
+				'Content-Type': 'application/json',
 				'Access-Control-Allow-Origin': '*',
 				'Access-Control-Allow-Methods': 'DELETE'
 			}
@@ -311,66 +320,24 @@ export const PATCH: RequestHandler = async ({ request }) => {
 
 	const requestBody: Movie = await request.json();
 
-	const genres: GenreDTO[] = requestBody.genres.map((genre: string) => ({
-		name: genre
-	}));
+	return await fetchDataFromMongoDB(movies, { title: requestBody.title }).then(
+		(movieDocuments: Document[]) => {
+			const mappedMovies: Movie[] = movieDocuments.map((doc: Document) =>
+				mapFetchedMovieToType(doc)
+			);
 
-	console.log(`Genres DTO: ${JSON.stringify(genres)}`);
-	return getDocumentById(movies, requestBody._id).then((document: Document) =>
-		addGenres(genres)
-			.then(async (genresId: string[]) => {
-				const data: MovieDTO = {
-					title: requestBody.title,
-					genres: genresId,
-					year: Number(requestBody.year),
-					rating: Number(requestBody.rating),
-					watched: requestBody.watched
-				};
-				const filter = { _id: new ObjectId(requestBody._id) };
+			const res: Movie | undefined = mappedMovies.find(
+				(movie: Movie) =>
+					movie._id !== requestBody._id && areStringsSimilar(requestBody.title, movie.title)
+			);
 
-				const update = {
-					$set: {
-						title: data.title,
-						genres: data.genres,
-						year: data.year,
-						rating: data.rating,
-						watched: data.watched
-					}
-				};
-				const oldMovie: Movie | undefined = mapFetchedMovieToType(document);
-				const result: UpdateResult<Movie> = await movies.updateOne(filter, update);
-
-				const isAcknowledged = result.acknowledged;
-				const modifiedCount = result.modifiedCount;
-				const isUpdated = modifiedCount === 1;
-				const isValid = isAcknowledged && isUpdated;
-
-				if (!isValid) {
-					return new Response(
-						JSON.stringify({
-							errorMessage: `Request is ${
-								isAcknowledged ? 'acknowledged' : 'not acknowledged'
-							}, movie is ${isUpdated ? 'updated' : 'not updated'}  `
-						}),
-						{
-							status: 400,
-							headers: {
-								'Access-Control-Allow-Origin': '*',
-								'Access-Control-Allow-Methods': 'PATCH'
-							}
-						}
-					);
-				}
-				const message = areStringsSimilar(oldMovie?.title, data.title)
-					? 'Movie updated sucessfully'
-					: `Movie ${oldMovie?.title} updated to ${data.title}`;
+			if (res) {
 				return new Response(
 					JSON.stringify({
-						movie: data,
-						message
+						errorMessage: `Movie with title ${requestBody.title} already exists`
 					}),
 					{
-						status: 202,
+						status: 409,
 						headers: {
 							'Content-Type': 'application/json',
 							'Access-Control-Allow-Origin': '*',
@@ -378,20 +345,94 @@ export const PATCH: RequestHandler = async ({ request }) => {
 						}
 					}
 				);
-			})
-			.catch((error: MongoServerError) => {
-				return new Response(
-					JSON.stringify({
-						errorMessage: `Failed to update movie ${requestBody.title}: ${error.message}`
-					}),
-					{
-						status: 400,
-						headers: {
-							'Access-Control-Allow-Origin': '*',
-							'Access-Control-Allow-Methods': 'PATCH'
+			}
+
+			const genres: GenreDTO[] = requestBody.genres.map((genre: string) => ({
+				name: genre
+			}));
+
+			console.log(`Genres DTO: ${JSON.stringify(genres)}`);
+
+			return getDocumentById(movies, requestBody._id).then((document: Document) =>
+				addGenres(genres)
+					.then(async (genresId: string[]) => {
+						const data: MovieDTO = {
+							title: requestBody.title,
+							genres: genresId,
+							year: Number(requestBody.year),
+							rating: Number(requestBody.rating),
+							watched: requestBody.watched
+						};
+						const filter = { _id: new ObjectId(requestBody._id) };
+
+						const update = {
+							$set: {
+								title: data.title,
+								genres: data.genres,
+								year: data.year,
+								rating: data.rating,
+								watched: data.watched
+							}
+						};
+						const oldMovie: Movie | undefined = mapFetchedMovieToType(document);
+						const result: UpdateResult<Movie> = await movies.updateOne(filter, update);
+
+						const isAcknowledged = result.acknowledged;
+						const modifiedCount = result.modifiedCount;
+						const isUpdated = modifiedCount === 1;
+						const isValid = isAcknowledged && isUpdated;
+
+						if (!isValid) {
+							return new Response(
+								JSON.stringify({
+									errorMessage: `Request is ${
+										isAcknowledged ? 'acknowledged' : 'not acknowledged'
+									}, movie is ${isUpdated ? 'updated' : 'not updated'}  `
+								}),
+								{
+									status: 400,
+									headers: {
+										'Content-Type': 'application/json',
+										'Access-Control-Allow-Origin': '*',
+										'Access-Control-Allow-Methods': 'PATCH'
+									}
+								}
+							);
 						}
-					}
-				);
-			})
+						const message = areStringsSimilar(oldMovie?.title, data.title)
+							? 'Movie updated sucessfully'
+							: `Movie ${oldMovie?.title} updated to ${data.title}`;
+						return new Response(
+							JSON.stringify({
+								movie: data,
+								message
+							}),
+							{
+								status: 202,
+								headers: {
+									'Content-Type': 'application/json',
+									'Access-Control-Allow-Origin': '*',
+									'Access-Control-Allow-Methods': 'PATCH'
+								}
+							}
+						);
+					})
+					.catch((error: MongoServerError) => {
+						return new Response(
+							JSON.stringify({
+								errorMessage: `Failed to update movie ${requestBody.title}: ${error.message}`
+							}),
+							{
+								status: 400,
+								headers: {
+									'Content-Type': 'application/json',
+									'Access-Control-Allow-Origin': '*',
+									'Access-Control-Allow-Methods': 'PATCH'
+								}
+							}
+						);
+					})
+			);
+		}
 	);
 };

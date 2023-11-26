@@ -1,19 +1,33 @@
 {
-    "short_name": "Movie Watchlist",
-    "name": "SvelteKit x MongoDB x shadcn-svelte Movie Watch List",
-    "start_url": "/",
-    "display": "standalone",
-    "icons": [
+	"short_name": "Movie Watchlist",
+	"name": "SvelteKit x MongoDB x shadcn-svelte Movie Watch List",
+	"description": "SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app",
+	"start_url": "/",
+    "display_override": ["fullscreen", "minimal-ui"],
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "svelte-android-chrome-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "svelte-android-chrome-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	],
+	"form_factor": "wide",
+	"screenshots": [
+		{
+			"src": "thumbnail.png",
+			"sizes": "1366x666",
+			"type": "image/png"
+		},
         {
-            "src": "svelte-android-chrome-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "svelte-android-chrome-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ],
-    "description": "SvelteKit-powered Movie Watchlist: Easily track, rate, and organize your movie choices with this user-friendly app"
+			"src": "android_form_factor.png",
+			"sizes": "357x760",
+			"type": "image/png"
+		}
+	]
 }
