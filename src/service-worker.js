@@ -1,12 +1,9 @@
 /// <reference types="@sveltejs/kit" />
-import { build, files, version } from '$service-worker';
+import { build, files, prerendered, version } from '$service-worker';
 
 const CACHE = `cache-${version}`;
 
-const ASSETS = [
-	...build, 
-	...files
-];
+const ASSETS = [...build, ...prerendered, ...files];
 
 self.addEventListener('install', (event) => {
 	async function addFilesToCache() {
@@ -28,6 +25,8 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+	if (event.request.method !== 'GET') return;
+
 	async function respond() {
 		const url = new URL(event.request.url);
 		const cache = await caches.open(CACHE);
