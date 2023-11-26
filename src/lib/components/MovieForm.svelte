@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { movieFormInfo, store } from '$lib';
+	import { movieFormInfo } from '$lib';
 	import { Loader2 } from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Form from '$lib/components/ui/form';
@@ -21,9 +21,9 @@
 	$: isProcessing = false;
 
 	$: {
+		isProcessing = false;
 		if (isValid) {
 			toast.success(message);
-			isProcessing = false;
 			goto('/');
 		}
 		if (isValid != undefined && !isValid) {
@@ -31,7 +31,6 @@
 				isModifying ? `Failed to update movie: ${errMsg}` : `Failed to add movie: ${errMsg}`
 			);
 		}
-		isProcessing = false;
 	}
 </script>
 
@@ -70,7 +69,6 @@
 			<Form.Item>
 				<Form.Label>Year of release</Form.Label>
 				<Form.Input placeholder={movieFormInfo[2].description} />
-
 				<Form.Validation />
 			</Form.Item>
 		</Form.Field>
@@ -99,11 +97,7 @@
 				<Form.Button
 					builders={[builder]}
 					class={`mt-2 ${isProcessing ? 'cursor-not-allowed' : 'cursor-default'}`}
-					on:click={() => {
-						isProcessing = true;
-					}}
-					disabled={isProcessing}
-					formaction={isModifying ? '?/modifyMovie' : '?/addMovie'}
+					on:click={() => (isProcessing = true)}
 				>
 					{#if isProcessing}
 						<Loader2 class="mr-2 animate-spin" />
