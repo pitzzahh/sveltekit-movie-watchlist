@@ -50,7 +50,7 @@ export const load = (async (event: RequestEvent) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-	modifyMovie: async (event) => {
+	default: async (event) => {
 		const form = await superValidate(event, modifySchema, {
 			id: 'modifySchema'
 		});
