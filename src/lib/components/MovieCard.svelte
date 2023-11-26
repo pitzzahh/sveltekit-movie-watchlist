@@ -51,9 +51,11 @@
 		</div>
 	</Card.Header>
 	<Card.Content>
-		<p class="font-bold">Release Year: <span>{movie.year}</span></p>
-		<p class="font-bold">Rating: <span>{movie.rating}</span></p>
-		<p class="font-bold">Watched: <span>{movie.watched ? 'Yes' : 'No'}</span></p>
+		<p class="font-bold">Release Year: <span class="font-normal">{movie.year}</span></p>
+		<p class="font-bold">Rating: <span class="font-normal">{movie.rating}</span></p>
+		<p class="font-bold">
+			Watched: <span class="font-normal">{movie.watched ? 'Yes' : 'No'}</span>
+		</p>
 	</Card.Content>
 	<Card.Footer class="flex justify-between">
 		<Tooltip.Root>
@@ -87,10 +89,7 @@
 						toast.promise(deleteMovie, {
 							loading: `Deleting ${movie.title}`,
 							success: (data) => {
-								store.update((state) => ({
-									...state,
-									movies: fetchMovies()
-								}));
+								$store.movies = fetchMovies();
 								return data.name;
 							},
 							error: (err) => {
