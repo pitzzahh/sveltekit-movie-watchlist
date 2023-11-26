@@ -17,12 +17,7 @@
 	export let pageUrl = host;
 	export let data: PageData;
 
-	onMount(() => {
-		store.update((state) => ({
-			...state,
-			movies: data.streamed.movies
-		}));
-	});
+	onMount(() => ($store.movies = data.streamed.movies));
 </script>
 
 <svelte:head>
