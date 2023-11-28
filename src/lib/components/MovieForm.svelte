@@ -9,6 +9,7 @@
 	import { goto } from '$app/navigation';
 	import { modifySchema } from '../../routes/movie/[id]/schema';
 	import { addSchema } from '../../routes/movie/schema';
+	import Button from './ui/button/button.svelte';
 	export let isModifying: boolean = false;
 	export let movie: Movie | undefined;
 	export let form: SuperValidated<any>;
@@ -92,22 +93,41 @@
 				<Form.Switch />
 			</Form.Item>
 		</Form.Field>
-		<Tooltip.Root>
-			<Tooltip.Trigger asChild let:builder>
-				<Form.Button
-					builders={[builder]}
-					class={`mt-2 ${isProcessing ? 'cursor-not-allowed' : 'cursor-default'}`}
-					on:click={() => (isProcessing = true)}
-				>
-					{#if isProcessing}
-						<Loader2 class="mr-2 animate-spin" />
-					{/if}
-					{isModifying ? `Update movie ${movie?.title}` : `Add movie`}</Form.Button
-				>
-			</Tooltip.Trigger>
-			<Tooltip.Content>
-				<p>{isModifying ? 'Update movie' : 'Add movie'}</p>
-			</Tooltip.Content>
-		</Tooltip.Root>
+
+		<div class="flex justify-between">
+			<Tooltip.Root>
+				<Tooltip.Trigger asChild let:builder>
+					<Form.Button
+						builders={[builder]}
+						class={`mt-2 ${isProcessing ? 'cursor-not-allowed' : 'cursor-default'}`}
+						on:click={() => (isProcessing = true)}
+					>
+						{#if isProcessing}
+							<Loader2 class="mr-2 animate-spin" />
+						{/if}
+						{isModifying ? `Update movie ${movie?.title}` : `Add movie`}</Form.Button
+					>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>{isModifying ? `Update movie ${movie?.title}` : 'Add movie'}</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+
+			<Tooltip.Root>
+				<Tooltip.Trigger asChild let:builder>
+					<Button
+						builders={[builder]}
+						variant="destructive"
+						class={`mt-2 ${isProcessing ? 'cursor-not-allowed' : 'cursor-default'}`}
+						on:click={() => goto('/')}
+					>
+						Cancel</Button
+					>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Cancel</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</div>
 	</Form.Root>
 </div>
