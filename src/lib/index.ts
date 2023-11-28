@@ -137,5 +137,5 @@ export const fetchMovies = async (): Promise<Movie[]> => {
 };
 
 export const host: string = dev
-	? 'https://stunning-happiness-wqvgrw69494c56-5174.app.github.dev'
+	? 'https://stunning-happiness-wqvgrw69494c56-5173.app.github.dev'
 	: 'https://sveltekit-movie-watchlist.vercel.app';
