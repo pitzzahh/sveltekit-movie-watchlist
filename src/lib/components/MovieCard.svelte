@@ -71,11 +71,11 @@
 					{#if isModifying}
 						<Loader2 class="mr-2 animate-spin" />
 					{/if}
-					Modify</Button
+					Update</Button
 				>
 			</Tooltip.Trigger>
 			<Tooltip.Content>
-				<p>{`Modify ${movie.title}`}</p>
+				<p>{`Update ${movie.title}`}</p>
 			</Tooltip.Content>
 		</Tooltip.Root>
 
