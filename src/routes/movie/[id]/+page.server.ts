@@ -37,7 +37,6 @@ export const load = (async (event: RequestEvent) => {
 			form.data.title = updatedMovie.title;
 			form.data.genres = updatedMovie.genres.join(' ');
 			form.data.year = updatedMovie.year.toString();
-			form.data.rating = updatedMovie.rating.toString();
 			form.data.watched = updatedMovie.watched;
 			return {
 				movie: updatedMovie,
