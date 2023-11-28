@@ -400,7 +400,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 							);
 						}
 						const message = areStringsSimilar(oldMovie?.title, data.title)
-							? 'Movie updated sucessfully'
+							? `Movie ${data.title} updated sucessfully`
 							: `Movie ${oldMovie?.title} updated to ${data.title}`;
 						return new Response(
 							JSON.stringify({
